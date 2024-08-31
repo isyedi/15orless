@@ -2,10 +2,22 @@ import React from 'react'
 import { Box } from '@mui/material'
 import { SignUp } from '@clerk/nextjs'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Alfa_Slab_One } from "next/font/google";
+import Head from 'next/head';
 
+const alfaSlabOne = Alfa_Slab_One({
+  weight: '400', 
+  subsets: ['latin'], 
+  display: 'swap',
+});
 
 export default function SignUpPage() {
     return (
+        <>
+        <Head>
+            <link rel="preconnect" href="https://fonts.gstatic.com" />
+        </Head>
+        
         <Box
             width="100vw"
             height="100vh"
@@ -43,7 +55,8 @@ export default function SignUpPage() {
                             },
                             cardBox:{
                                 border: "none",
-                                boxShadow: "none"
+                                boxShadow: "none", 
+                                width: "100%"
                             }, 
                             card:{
                                 border: "none", 
@@ -54,10 +67,14 @@ export default function SignUpPage() {
                             },
                             
                         },
+                        variables: {
+                            fontFamily: alfaSlabOne.style.fontFamily,
+                        }
                         
                     }}
                 />
             </Box>
         </Box>
+        </>
     )
 }
