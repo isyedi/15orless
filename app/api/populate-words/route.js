@@ -15,46 +15,55 @@ export async function POST(req) {
   const wordsCollection = collection(db, "words");
 
   try {
-    console.log("Calling OpenAI...");
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "system", content: generatePrompt() }],
-      max_tokens: 300,
-    });
+    let generatedWordsCount = 0;
+    const maxWords = 8;
 
-    console.log("OpenAI response received:", JSON.stringify(response.choices, null, 2));
+    while (generatedWordsCount < maxWords) {
+      console.log("Calling OpenAI...");
+      const response = await openai.chat.completions.create({
+        model: "gpt-4o-mini",
+        messages: [{ role: "system", content: generatePrompt() }],
+        max_tokens: 300,
+        temperature: 0.9,
+      });
 
-    const generatedWords = parseOpenAIResponse(response.choices);
+      console.log("OpenAI response received:", JSON.stringify(response.choices, null, 2));
 
-    for (let word of generatedWords) {
-      let normalizedWord = word.word.toLowerCase();
-      
-      let existingWordQuery = query(wordsCollection, where("word", "==", normalizedWord));
-      let existingWordSnapshot = await getDocs(existingWordQuery);
+      const generatedWords = parseOpenAIResponse(response.choices);
 
-      while (!existingWordSnapshot.empty) {
-        console.log(`Word "${normalizedWord}" already exists in Firestore, generating a new word...`);
-        
+      for (let word of generatedWords) {
+        let normalizedWord = word.word.toLowerCase();
 
-        const newResponse = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
-          messages: [{ role: "system", content: generatePrompt() }],
-          max_tokens: 300,
+        let existingWordQuery = query(wordsCollection, where("word", "==", normalizedWord));
+        let existingWordSnapshot = await getDocs(existingWordQuery);
+
+        while (!existingWordSnapshot.empty) {
+          console.log(`Word "${normalizedWord}" already exists in Firestore, generating a new word...`);
+
+          const newResponse = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            messages: [{ role: "system", content: generatePrompt() }],
+            max_tokens: 300,
+            temperature: 0.9,
+          });
+
+          const newGeneratedWords = parseOpenAIResponse(newResponse.choices);
+          word = newGeneratedWords[0];
+          normalizedWord = word.word.toLowerCase();
+
+          existingWordQuery = query(wordsCollection, where("word", "==", normalizedWord));
+          existingWordSnapshot = await getDocs(existingWordQuery);
+        }
+
+        console.log("Adding word to Firestore:", normalizedWord);
+        await addDoc(wordsCollection, {
+          word: normalizedWord,
+          clues: word.clues,
         });
 
-        const newGeneratedWords = parseOpenAIResponse(newResponse.choices);
-        word = newGeneratedWords[0];
-        normalizedWord = word.word.toLowerCase();
-
-        existingWordQuery = query(wordsCollection, where("word", "==", normalizedWord));
-        existingWordSnapshot = await getDocs(existingWordQuery);
+        generatedWordsCount++;
+        if (generatedWordsCount >= maxWords) break;
       }
-
-      console.log("Adding word to Firestore:", normalizedWord);
-      await addDoc(wordsCollection, {
-        word: normalizedWord,
-        clues: word.clues,
-      });
     }
 
     console.log("Words added successfully!");
@@ -68,10 +77,9 @@ export async function POST(req) {
 
 // Generate a prompt to send to OpenAI
 function generatePrompt() {
-  return `Generate a word or phrase that represents a category, topic, object, location, country, famous person (with a full name), or a commonly recognized thing.
-  The word or phrase should not be limited to just names, but should also include a mix of objects, locations, countries, and other categories. Avoid generating too many famous names; balance the output with other categories.
-  Avoid using overly common words like 'elephant', 'apple', 'car', etc. For this word or phrase, generate 15 progressively obvious one-word clues.
-  The clues should be a single word each, ranging from very subtle to very obvious.
+  return `Generate a word or phrase that represents a category, topic, sports team, object, location (country, city, etc.), famous person (must have first and last name), or a commonly recognized thing, especially in pop culture.
+  For this word or phrase, generate 15 progressively obvious one-word clues.
+  The clues should be a single word each, ranging from subtle to very obvious.
   Format the response as plain JSON with the word or phrase having a "word" key and a "clues" key 
   that contains an array of 15 single-word clues. Ensure the clues are directly related to the word or phrase and avoid any multi-word clues for the clues.
   Do not include any code blocks or backticks.`;
