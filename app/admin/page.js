@@ -1,5 +1,3 @@
-// app/admin/page.js
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -9,10 +7,10 @@ export default function Admin() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [clearing, setClearing] = useState(false);
-  const [wordCount, setWordCount] = useState(0);
+  const [wordCount, setWordCount] = useState(0);  // New state to track word count
 
   useEffect(() => {
-    fetchWordCount();
+    fetchWordCount();  // Fetch word count on component mount
   }, []);
 
   const fetchWordCount = async () => {
@@ -28,21 +26,9 @@ export default function Admin() {
     setLoading(true);
     setMessage('');
     try {
-      let generatedWords = 0;
-      const maxWords = 8;
-
-      while (generatedWords < maxWords) {
-        const response = await axios.post('/api/populate-words');
-        if (response.data.success) {
-          generatedWords++;
-          setMessage(prevMessage => prevMessage + `Word ${generatedWords} added: ${response.data.word}\n`);
-        } else {
-          setMessage(prevMessage => prevMessage + `Error generating word ${generatedWords + 1}: ${response.data.message}\n`);
-        }
-      }
-
-      fetchWordCount();
-
+      const response = await axios.post('/api/populate-words');
+      setMessage(response.data.message);
+      fetchWordCount();  // Update word count after generating words
     } catch (error) {
       setMessage("Error generating words: " + (error.response?.data?.message || error.message));
     } finally {
@@ -56,7 +42,7 @@ export default function Admin() {
     try {
       const response = await axios.post('/api/clear-words');
       setMessage(response.data.message);
-      fetchWordCount();
+      fetchWordCount();  // Update word count after clearing words
     } catch (error) {
       setMessage("Error clearing words: " + (error.response?.data?.message || error.message));
     } finally {
@@ -66,21 +52,20 @@ export default function Admin() {
 
   return (
     <div style={{ padding: '20px', position: 'relative' }}>
-      <h1>Admin Page</h1>
-      <div style={{ position: 'absolute', top: '20px', right: '20px'}}>
-        <p>Total Words: {wordCount}</p>
+      <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '18px', fontWeight: 'bold' }}>
+        Word Count: {wordCount}
       </div>
+      <h1>Admin Page</h1>
       <p>Click the button below to generate new words and clues.</p>
       
       <button onClick={handleGenerateWords} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px' }}>
         {loading ? 'Generating...' : 'Generate New Words'}
       </button>
 
-      <button onClick={handleClearWords} disabled={loading || clearing} style={{ padding: '10px 20px', fontSize: '16px' }}>
+      <button onClick={handleClearWords} disabled={loading || clearing} style={{ padding: '10px 20px', fontSize: '16px', marginLeft: '10px' }}>
         {clearing ? 'Clearing...' : 'Clear All Words'}
       </button>
 
-      
       {message && <p>{message}</p>}
     </div>
   );

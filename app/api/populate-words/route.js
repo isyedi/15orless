@@ -1,5 +1,3 @@
-// app/api/populate-words/route.js
-
 import { OpenAI } from 'openai';
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase";
@@ -10,91 +8,64 @@ const openai = new OpenAI({
 });
 
 export async function POST(req) {
-  console.log("Starting word generation...");
-
-  const wordsCollection = collection(db, "words");
-
   try {
-    let generatedWordsCount = 0;
-    const maxWords = 8;
+    const wordsCollection = collection(db, "words");
 
-    while (generatedWordsCount < maxWords) {
-      console.log("Calling OpenAI...");
+    let wordAdded = false;
+
+    while (!wordAdded) {
+      // Generate the word with OpenAI
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
         messages: [{ role: "system", content: generatePrompt() }],
         max_tokens: 300,
-        temperature: 0.9,
       });
 
-      console.log("OpenAI response received:", JSON.stringify(response.choices, null, 2));
+      const generatedWord = parseOpenAIResponse(response.choices)[0];
+      const normalizedWord = generatedWord.word.toLowerCase();
 
-      const generatedWords = parseOpenAIResponse(response.choices);
+      // Check if the word already exists
+      const existingWordQuery = query(wordsCollection, where("word", "==", normalizedWord));
+      const existingWordSnapshot = await getDocs(existingWordQuery);
 
-      for (let word of generatedWords) {
-        let normalizedWord = word.word.toLowerCase();
-
-        let existingWordQuery = query(wordsCollection, where("word", "==", normalizedWord));
-        let existingWordSnapshot = await getDocs(existingWordQuery);
-
-        while (!existingWordSnapshot.empty) {
-          console.log(`Word "${normalizedWord}" already exists in Firestore, generating a new word...`);
-
-          const newResponse = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [{ role: "system", content: generatePrompt() }],
-            max_tokens: 300,
-            temperature: 0.9,
-          });
-
-          const newGeneratedWords = parseOpenAIResponse(newResponse.choices);
-          word = newGeneratedWords[0];
-          normalizedWord = word.word.toLowerCase();
-
-          existingWordQuery = query(wordsCollection, where("word", "==", normalizedWord));
-          existingWordSnapshot = await getDocs(existingWordQuery);
-        }
-
-        console.log("Adding word to Firestore:", normalizedWord);
+      if (existingWordSnapshot.empty) {
+        // Add the word to Firestore
         await addDoc(wordsCollection, {
           word: normalizedWord,
-          clues: word.clues,
+          clues: generatedWord.clues,
         });
 
-        generatedWordsCount++;
-        if (generatedWordsCount >= maxWords) break;
+        console.log(`Word "${normalizedWord}" added to Firestore successfully!`);
+        wordAdded = true; // Exit the loop once a new word is added
+        return new Response(JSON.stringify({ success: true, word: normalizedWord, message: "Word added to Firebase successfully!" }), { status: 200 });
+      } else {
+        console.log(`Word "${normalizedWord}" already exists. Generating a new word...`);
       }
     }
 
-    console.log("Words added successfully!");
-    return new Response(JSON.stringify({ message: "Words added to Firebase successfully!" }), { status: 200 });
-
   } catch (error) {
     console.error("Error in word generation:", error);
-    return new Response(JSON.stringify({ message: "Error adding words: " + error.message }), { status: 500 });
+    return new Response(JSON.stringify({ success: false, message: "Error adding words: " + error.message }), { status: 500 });
   }
 }
 
-// Generate a prompt to send to OpenAI
 function generatePrompt() {
   return `Generate a word or phrase that represents a category, topic, sports team, object, location (country, city, etc.), famous person (must have first and last name), or a commonly recognized thing, especially in pop culture.
+  Ensure that the word or phrase does not contain any commas. Avoid generating too many famous names; ensure a diverse mix of categories.
   For this word or phrase, generate 15 progressively obvious one-word clues.
-  The clues should be a single word each, ranging from subtle to very obvious.
-  Format the response as plain JSON with the word or phrase having a "word" key and a "clues" key 
-  that contains an array of 15 single-word clues. Ensure the clues are directly related to the word or phrase and avoid any multi-word clues for the clues.
+  The clues should be a single word each, ranging from very subtle to very obvious.
+  Format the response as plain JSON with the word having a "word" key and a "clues" key 
+  that contains an array of 15 single-word clues. Ensure the clues are directly related to the word and avoid any multi-word clues for the clues.
   Do not include any code blocks or backticks.`;
 }
 
-// Parse the response from OpenAI into a usable format
 function parseOpenAIResponse(choices) {
   return choices.map((choice) => {
-    // Clean the content by removing any backticks or extraneous characters
     const cleanedContent = choice.message.content.trim().replace(/```json|```/g, '');
-    
+
     try {
       const data = JSON.parse(cleanedContent);
       if (data && data.word && data.clues) {
-        console.log("Parsed data:", data);
         return {
           word: data.word,
           clues: data.clues,
@@ -103,10 +74,9 @@ function parseOpenAIResponse(choices) {
         console.warn("Incomplete data received, retrying...");
         return null;
       }
-      
     } catch (error) {
       console.error("Error parsing OpenAI response:", error);
-      return null;  // Handle this appropriately in your application
+      return null;
     }
-  }).filter(word => word !== null); // Filter out any null results
+  }).filter(word => word !== null);
 }
