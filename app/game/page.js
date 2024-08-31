@@ -12,6 +12,7 @@ export default function Game() {
   const [result, setResult] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
   const [guessedWords, setGuessedWords] = useState(Array(8).fill(false));  // Track which words have been guessed
+  const [totalCluesUsed, setTotalCluesUsed] = useState(0);  // Track total number of clues used
 
   useEffect(() => {
     startGame();
@@ -26,13 +27,19 @@ export default function Game() {
     setResult(null);
     setIsGameOver(false);
     setGuessedWords(Array(8).fill(false));  // Reset guessed words for a new game
+    setTotalCluesUsed(0);  // Reset total clues used for a new game
   };
 
   const handleGuess = async () => {
     const currentWord = clues[currentWordIndex].word;
+    
+    // Normalize both the guess and the correct word
+    const normalizedGuess = currentGuess.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const normalizedWord = currentWord.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  
     const guessResponse = await axios.post('/api/submit-guess', {
-      guess: currentGuess,
-      word: currentWord,
+      guess: normalizedGuess,
+      word: normalizedWord,
     });
 
     if (guessResponse.data.result === 'correct') {
@@ -52,13 +59,21 @@ export default function Game() {
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
         setCurrentClueIndex(currentClueIndex + 1);
+        setTotalCluesUsed(totalCluesUsed + 1);  // Increment total clues used
         setResult('Incorrect');
       } else {
         setResult('No more clues available for this word.');
         setIsGameOver(true);
       }
     }
+    setTotalCluesUsed(totalCluesUsed + 1);  // Increment total clues used for every guess
     setCurrentGuess('');
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter' && !isGameOver) {
+      handleGuess();  // Trigger the handleGuess function when Enter is pressed
+    }
   };
 
   return (
@@ -72,6 +87,7 @@ export default function Game() {
           type="text"
           value={currentGuess}
           onChange={(e) => setCurrentGuess(e.target.value)}
+          onKeyPress={handleKeyPress}  // Add onKeyPress event listener
           className={styles.input}
         />
         <br />
@@ -93,7 +109,7 @@ export default function Game() {
       {/* Move result under the grey boxes */}
       {result && <p className={styles.result}>{result}</p>}
 
-      <p className={styles.cluesUsed}>Clues Used: {currentClueIndex + 1} / 15</p>
+      <p className={styles.cluesUsed}>Clues Used: {totalCluesUsed} / 15</p>
       <button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>
     </div>
   );
