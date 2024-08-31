@@ -68,11 +68,12 @@ export async function POST(req) {
 
 // Generate a prompt to send to OpenAI
 function generatePrompt() {
-  return `Generate a word that represents a category, topic, object, famous person, or a commonly recognized thing.
-  Avoid using overly common words like 'elephant', 'apple', 'car', etc. For this word, generate 15 progressively obvious one-word clues.
+  return `Generate a word or phrase that represents a category, topic, object, location, country, famous person (with a full name), or a commonly recognized thing.
+  The word or phrase should not be limited to just names, but should also include a mix of objects, locations, countries, and other categories. Avoid generating too many famous names; balance the output with other categories.
+  Avoid using overly common words like 'elephant', 'apple', 'car', etc. For this word or phrase, generate 15 progressively obvious one-word clues.
   The clues should be a single word each, ranging from very subtle to very obvious.
-  Format the response as plain JSON with the word having a "word" key and a "clues" key 
-  that contains an array of 15 single-word clues. Ensure the clues are directly related to the word and avoid any multi-word clues.
+  Format the response as plain JSON with the word or phrase having a "word" key and a "clues" key 
+  that contains an array of 15 single-word clues. Ensure the clues are directly related to the word or phrase and avoid any multi-word clues for the clues.
   Do not include any code blocks or backticks.`;
 }
 
