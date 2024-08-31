@@ -12,6 +12,7 @@ const alfaSlabOne = Alfa_Slab_One({
 });
 
 
+
 export default function SignInPage() {
     return (
         <>
@@ -40,7 +41,11 @@ export default function SignInPage() {
                 flexDirection="column"
                 justifyContent="center"
                 alignItems="center"
-                
+                sx={{
+                    '.cl-internal-1dauvpw': {
+                      display: 'none',
+                    },
+                  }}
             >
                 <a href="/" style={{ textDecoration: 'none', cursor: 'pointer', marginBottom: '16px'  }}>
                     <ArrowBackIcon />
@@ -50,8 +55,6 @@ export default function SignInPage() {
                     signUpUrl='/sign-up'
                     appearance={{
                         elements: {
-                            //footer: { display: "none" },
-                            
                             formButtonPrimary: {
                                 fontSize: 24,
                             },

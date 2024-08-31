@@ -129,7 +129,13 @@ export default function Home() {
                 Start Playing
             </Button>
 
-            <Box onClick={handleOpen} sx={{ cursor: 'pointer' }}>
+            <Box onClick={handleOpen} sx={{ cursor: 'pointer', '&:hover': {
+                '& .MuiSvgIcon-root': {
+                  color: 'black', 
+                  transform: 'scale(1.1)', 
+                },
+                fontWeight: 'bold'
+              } }}>
               <HelpOutlineIcon 
               style={{ fontSize: 40 }}/>
             </Box>

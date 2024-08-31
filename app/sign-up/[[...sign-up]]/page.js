@@ -38,7 +38,11 @@ export default function SignUpPage() {
                 flexDirection="column"
                 justifyContent="center"
                 alignItems="center"
-                
+                sx={{
+                    '.cl-internal-1dauvpw': {
+                      display: 'none',
+                    },
+                  }}
             >
                 <a href="/" style={{ textDecoration: 'none', cursor: 'pointer', marginBottom: '16px'  }}>
                     <ArrowBackIcon />
@@ -48,8 +52,6 @@ export default function SignUpPage() {
                     signInUrl='/sign-in'
                     appearance={{
                         elements: {
-                            //footer: { display: "none" },
-                            
                             formButtonPrimary: {
                                 fontSize: 24,
                             },
