@@ -50,12 +50,11 @@ export async function POST(req) {
 }
 
 function generatePrompt() {
-  return `Generate a word or phrase that represents a category, topic, sports team, object, location (country, city, etc.), famous person (must have first and last name), or a commonly recognized thing, especially in pop culture.
-  Ensure that the word or phrase does not contain any commas. Avoid generating too many famous names; ensure a diverse mix of categories.
-  For this word or phrase, generate 15 progressively obvious one-word clues.
-  The clues should be a single word each, ranging from slightly subtle to very obvious.
-  Format the response as plain JSON with the word having a "word" key and a "clues" key 
-  that contains an array of 15 single-word clues. Ensure the clues are directly related to the word and avoid any multi-word clues for the clues.
+  return `Generate a word that represents a commonly recognized object, concept, or item (e.g., apple, river, chair) that is simple yet challenging to guess. 
+  For this word, generate 5 progressively obvious one-word clues. 
+  The clues should be directly related to the word and range from slightly subtle to very obvious.
+  Ensure that the word or any of the clues do not contain any commas, and avoid generating too many famous names or locations.
+  Format the response as plain JSON with the word having a "word" key and a "clues" key that contains an array of 5 single-word clues.
   Do not include any code blocks or backticks.`;
 }
 

@@ -13,6 +13,15 @@ export default function Game() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [guessedWords, setGuessedWords] = useState(Array(8).fill(false));  // Track which words have been guessed
   const [totalCluesUsed, setTotalCluesUsed] = useState(0);  // Track total number of clues used
+  const [time, setTime] = useState(0);  // Track the time elapsed
+
+  useEffect(() => {
+    let timer;
+    if (!isGameOver) {
+      timer = setInterval(() => setTime((prevTime) => prevTime + 1), 1000);
+    }
+    return () => clearInterval(timer);
+  }, [isGameOver]);
 
   useEffect(() => {
     startGame();
@@ -28,6 +37,7 @@ export default function Game() {
     setIsGameOver(false);
     setGuessedWords(Array(8).fill(false));  // Reset guessed words for a new game
     setTotalCluesUsed(0);  // Reset total clues used for a new game
+    setTime(0);  // Reset timer for a new game
   };
 
   const handleGuess = async () => {
@@ -79,6 +89,7 @@ export default function Game() {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>15 Words or Less Game</h1>
+      <p className={styles.timer}>Time Elapsed: {time} seconds</p>
       <div className={styles.gameArea}>
         <p className={styles.clue}>
           Clue: {clues.length > 0 && clues[currentWordIndex]?.clues ? clues[currentWordIndex].clues[currentClueIndex] : 'Loading...'}
