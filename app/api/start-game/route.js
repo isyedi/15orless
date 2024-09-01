@@ -1,34 +1,28 @@
-// app/api/start-game/route.js
-
-import { collection, query, getDocs } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase";
 
 export async function GET(req) {
   try {
     const wordsCollection = collection(db, "words");
+    const snapshot = await getDocs(wordsCollection);
 
-    // Fetch all documents first
-    const allWordsSnapshot = await getDocs(wordsCollection);
-    const allWords = [];
-    
-    allWordsSnapshot.forEach((docSnapshot) => {
-      const wordData = docSnapshot.data();
-      allWords.push(wordData);
-    });
-
-    if (allWords.length === 0) {
-      console.log("No words found in the collection.");
-      return new Response(JSON.stringify({ message: "No more words available." }), { status: 404 });
+    if (snapshot.empty) {
+      console.log("No word lists found in the collection.");
+      return new Response(JSON.stringify({ message: "No word lists available." }), { status: 404 });
     }
 
-    // Shuffle the array and select the first 8 words
-    const shuffledWords = allWords.sort(() => Math.random() - 0.5);
-    const selectedWords = shuffledWords.slice(0, 8);
+    const wordLists = [];
+    snapshot.forEach((docSnapshot) => {
+      wordLists.push(docSnapshot.data().words);
+    });
 
-    console.log("Returning random words with clues:", selectedWords);
-    return new Response(JSON.stringify({ clues: selectedWords }), { status: 200 });
+    // Pick a random list from the wordLists array
+    const randomList = wordLists[Math.floor(Math.random() * wordLists.length)];
+
+    console.log("Returning random list of 8 words:", randomList);
+    return new Response(JSON.stringify({ clues: randomList }), { status: 200 });
   } catch (error) {
     console.error("Error in start-game:", error);
     return new Response(JSON.stringify({ message: "Internal server error" }), { status: 500 });
-  }  
+  }
 }

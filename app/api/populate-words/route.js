@@ -11,9 +11,17 @@ export async function POST(req) {
   try {
     const wordsCollection = collection(db, "words");
 
-    let wordAdded = false;
+    const generatedWordsList = [];
+    const usedWords = new Set();
 
-    while (!wordAdded) {
+    // Fetch all existing words in Firestore
+    const allWordsSnapshot = await getDocs(wordsCollection);
+    allWordsSnapshot.forEach((doc) => {
+      const wordsData = doc.data().words;
+      wordsData.forEach(word => usedWords.add(word.word.toLowerCase()));
+    });
+
+    while (generatedWordsList.length < 8) {
       // Generate the word with OpenAI
       const response = await openai.chat.completions.create({
         model: "gpt-4o-mini",
@@ -24,24 +32,25 @@ export async function POST(req) {
       const generatedWord = parseOpenAIResponse(response.choices)[0];
       const normalizedWord = generatedWord.word.toLowerCase();
 
-      // Check if the word already exists
-      const existingWordQuery = query(wordsCollection, where("word", "==", normalizedWord));
-      const existingWordSnapshot = await getDocs(existingWordQuery);
-
-      if (existingWordSnapshot.empty) {
-        // Add the word to Firestore
-        await addDoc(wordsCollection, {
+      // Check if the word already exists in Firestore or the current list
+      if (!usedWords.has(normalizedWord)) {
+        usedWords.add(normalizedWord);  // Add to the set of used words
+        generatedWordsList.push({
           word: normalizedWord,
           clues: generatedWord.clues,
         });
-
-        console.log(`Word "${normalizedWord}" added to Firestore successfully!`);
-        wordAdded = true; // Exit the loop once a new word is added
-        return new Response(JSON.stringify({ success: true, word: normalizedWord, message: "Word added to Firebase successfully!" }), { status: 200 });
       } else {
-        console.log(`Word "${normalizedWord}" already exists. Generating a new word...`);
+        console.log(`Word "${normalizedWord}" already exists in Firestore or the current list. Generating a new word...`);
       }
     }
+
+    // Add the list of 8 words to Firestore as a single document
+    await addDoc(wordsCollection, {
+      words: generatedWordsList,
+    });
+
+    console.log("List of 8 words added to Firestore successfully!");
+    return new Response(JSON.stringify({ success: true, message: "List of 8 words added to Firebase successfully!" }), { status: 200 });
 
   } catch (error) {
     console.error("Error in word generation:", error);
@@ -50,10 +59,10 @@ export async function POST(req) {
 }
 
 function generatePrompt() {
-  return `Generate a word that represents a commonly recognized object, concept, or item (e.g., apple, river, chair) that is simple yet challenging to guess. 
-  For this word, generate 5 progressively obvious one-word clues. 
-  The clues should be directly related to the word and range from slightly subtle to very obvious.
-  Ensure that the word or any of the clues do not contain any commas, and avoid generating too many famous names or locations.
+  return `Generate a word that represents a commonly recognized object, concept, or item (e.g., apple, river, chair) that is simple yet challenging to guess.
+  For this word, generate 5 clues that are directly related to the word (e.g., 'fruit' for 'apple', 'water' for 'river'). 
+  The clues should be single words that are closely related to the word but not overly obvious.
+  Ensure that the word or any of the clues do not contain any commas.
   Format the response as plain JSON with the word having a "word" key and a "clues" key that contains an array of 5 single-word clues.
   Do not include any code blocks or backticks.`;
 }
