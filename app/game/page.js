@@ -29,17 +29,6 @@ export default function Game() {
   const [activeSegments, setActiveSegments] = useState(Array(8).fill(false));
 
   useEffect(() => {
-    // Example: Activating segments one by one with a delay
-    activeSegments.forEach((segment, index) => {
-      setTimeout(() => {
-        setActiveSegments((prev) =>
-          prev.map((val, i) => (i === index ? true : val))
-        );
-      }, (index + 1) * 1000);
-    });
-  }, [activeSegments]);
-
-  useEffect(() => {
     startGame();
   }, []);
 
@@ -54,6 +43,7 @@ export default function Game() {
     setGuessedWords(Array(8).fill(false));  // Reset guessed words for a new game
     setTotalCluesUsed(0);  // Reset total clues used for a new game
     setTime(0);  // Reset the timer for a new game
+    setActiveSegments(Array(8).fill(false));
   };
 
   const handleGuess = async () => {
@@ -70,6 +60,12 @@ export default function Game() {
 
     if (guessResponse.data.result === 'correct') {
       setResult('Correct');
+
+      // Light up the corresponding segment
+      setActiveSegments((prev) =>
+        prev.map((val, i) => (i === currentWordIndex ? true : val))
+      );
+
       const newGuessedWords = [...guessedWords];
       newGuessedWords[currentWordIndex] = true;  // Mark the word as guessed
       setGuessedWords(newGuessedWords);
