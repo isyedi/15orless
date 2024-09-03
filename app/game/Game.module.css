@@ -11,18 +11,76 @@
     font-size: 2.5rem;
     margin-bottom: 20px;
   }
+
+  /* TODO: fix border, make light up circle */
+
+  .circleContainer {
+    position: relative;
+    border-radius: 50%;
+  }
+  
+  .circleSegment {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 10px solid transparent;
+    border-top-color: #d3d3d3; /* Initial color for inactive segments */
+    border-radius: 50%;
+    clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%);
+    transform-origin: center;
+  }
+  
+  .circleSegment:nth-child(1) {
+    transform: rotate(0deg);
+  }
+  
+  .circleSegment:nth-child(2) {
+    transform: rotate(45deg);
+  }
+  
+  .circleSegment:nth-child(3) {
+    transform: rotate(90deg);
+  }
+  
+  .circleSegment:nth-child(4) {
+    transform: rotate(135deg);
+  }
+  
+  .circleSegment:nth-child(5) {
+    transform: rotate(180deg);
+  }
+  
+  .circleSegment:nth-child(6) {
+    transform: rotate(225deg);
+  }
+  
+  .circleSegment:nth-child(7) {
+    transform: rotate(270deg);
+  }
+  
+  .circleSegment:nth-child(8) {
+    transform: rotate(315deg);
+  }
+  
+  .active {
+    border-top-color: #00bfff; /* Color for active segments */
+  }
+  
   
   .gameArea {
-    margin-bottom: 20px;
+    position: relative;
+    width: 30rem;
+    height: 30rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
   }
   
   .clue {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-  }
-  
-  .input {
-    padding: 10px;
+    font-size: 4rem;
+    font-weight: bold;
     margin-bottom: 10px;
   }
   

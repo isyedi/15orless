@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
+import { FaArrowCircleRight } from "react-icons/fa";
+import { TextField, IconButton, InputAdornment } from '@mui/material';
+
 
 export default function Game() {
   const [clues, setClues] = useState([]);
@@ -22,6 +25,19 @@ export default function Game() {
     }
     return () => clearInterval(timer);
   }, [isGameOver]);
+
+  const [activeSegments, setActiveSegments] = useState(Array(8).fill(false));
+
+  useEffect(() => {
+    // Example: Activating segments one by one with a delay
+    activeSegments.forEach((segment, index) => {
+      setTimeout(() => {
+        setActiveSegments((prev) =>
+          prev.map((val, i) => (i === index ? true : val))
+        );
+      }, (index + 1) * 1000);
+    });
+  }, [activeSegments]);
 
   useEffect(() => {
     startGame();
@@ -88,21 +104,46 @@ export default function Game() {
 
   return (
     <div className={styles.container}>
+      {/* Timer */}
       <div className={styles.timer}>Time: {Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>
-      <h1 className={styles.title}>15 Words or Less Game</h1>
-      <div className={styles.gameArea}>
-        <p className={styles.clue}>
-          Clue: {clues.length > 0 && clues[currentWordIndex]?.clues ? clues[currentWordIndex].clues[currentClueIndex] : 'Loading...'}
-        </p>
-        <input
-          type="text"
-          value={currentGuess}
-          onChange={(e) => setCurrentGuess(e.target.value)}
-          onKeyPress={handleKeyPress}  // Add onKeyPress event listener
-          className={styles.input}
-        />
-        <br />
-        <button onClick={handleGuess} disabled={isGameOver} className={styles.button}>Submit Guess</button>
+      <h1 className={styles.title}>15 or Less</h1>
+
+      {/* Border to be lit up */}
+      <div className={styles.circleContainer}>
+        {Array.from({ length: 8 }).map((_, index) => (
+          <div
+            key={index}
+            className={`${styles.circleSegment} ${
+              activeSegments[index] ? styles.active : ''
+            }`}
+          ></div>
+        ))}
+
+        <div className={styles.gameArea}>
+          <div>
+            Clue:
+          </div>
+          <div>
+            {clues.length > 0 && clues[currentWordIndex]?.clues ? clues[currentWordIndex].clues[currentClueIndex] : 'Loading...'}
+          </div>
+          <TextField
+            label="Enter your guess"
+            value={currentGuess}
+            onChange={(e) => setCurrentGuess(e.target.value)}
+            onKeyDown={handleKeyPress}
+            variant="outlined" // Adjust as necessary
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleGuess} edge="end" disabled={isGameOver}>
+                    <FaArrowCircleRight color='black' />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </div>
+
       </div>
 
       {/* Gray boxes for words */}
