@@ -14,7 +14,7 @@ export default function Game() {
   const [currentGuess, setCurrentGuess] = useState('');
   const [result, setResult] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
-  const [guessedWords, setGuessedWords] = useState(Array(8).fill(false));  // Track which words have been guessed
+  const [guessedWords, setGuessedWords] = useState(Array(8).fill(''));  // Track which words have been guessed
   const [totalCluesUsed, setTotalCluesUsed] = useState(0);  // Track total number of clues used
   const [time, setTime] = useState(0);
 
@@ -67,7 +67,7 @@ export default function Game() {
       );
 
       const newGuessedWords = [...guessedWords];
-      newGuessedWords[currentWordIndex] = true;  // Mark the word as guessed
+      newGuessedWords[currentWordIndex] = currentWord;  // Mark the word as guessed
       setGuessedWords(newGuessedWords);
 
       if (currentWordIndex < clues.length - 1) {
@@ -116,7 +116,7 @@ export default function Game() {
                 key={index}
                 className={`${styles.box} ${guessed ? styles.guessed : ''}`}
               >
-                {index + 1}
+                {guessed}
               </div>
             ))}
           </div>
@@ -164,7 +164,7 @@ export default function Game() {
           {/* Timer */}
           <div className={styles.timer}>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>
 
-          {/* Gray boxes for words */}
+          {/* Gray boxes for guesses remaining */}
           <div className={styles.boxContainer}>
             {guessedWords.map((guessed, index) => (
               <div
