@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
 import { FaArrowCircleRight } from "react-icons/fa";
-import { TextField, IconButton, InputAdornment } from '@mui/material';
+import { TextField, IconButton, InputAdornment, Modal } from '@mui/material';
 
 
 export default function Game() {
@@ -100,65 +100,86 @@ export default function Game() {
 
   return (
     <div className={styles.container}>
-      {/* Timer */}
-      <div className={styles.timer}>Time: {Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>
-      <h1 className={styles.title}>15 or Less</h1>
 
-      {/* Border to be lit up */}
-      <div className={styles.circleContainer}>
-        {Array.from({ length: 8 }).map((_, index) => (
-          <div
-            key={index}
-            className={`${styles.circleSegment} ${
-              activeSegments[index] ? styles.active : ''
-            }`}
-          ></div>
-        ))}
+      {/* Header Section with Title */}
+      <div className={styles.header}>
+        <h1 className={styles.title}>15 or Less</h1>
+      </div>
 
-        <div className={styles.gameArea}>
-          <div>
-            Clue:
+      {/* Main content container */}
+      <div className={styles.mainContentContainer}>
+
+        {/* Gray boxes for words */}
+        <div className={styles.boxContainer}>
+            {guessedWords.map((guessed, index) => (
+              <div
+                key={index}
+                className={`${styles.box} ${guessed ? styles.guessed : ''}`}
+              >
+                {index + 1}
+              </div>
+            ))}
           </div>
-          <div>
-            {clues.length > 0 && clues[currentWordIndex]?.clues ? clues[currentWordIndex].clues[currentClueIndex] : 'Loading...'}
+
+        {/* Circle Ring */}
+        <div className={styles.circleContainer}>
+          {Array.from({ length: 8 }).map((_, index) => (
+            <div
+              key={index}
+              className={`${styles.circleSegment} ${
+                activeSegments[index] ? styles.active : ''
+              }`}
+            ></div>
+          ))}
+
+          <div className={styles.gameArea}>
+            <div>
+              Clue:
+            </div>
+            <div>
+              {clues.length > 0 && clues[currentWordIndex]?.clues ? clues[currentWordIndex].clues[currentClueIndex] : 'Loading...'}
+            </div>
+            <TextField
+              label="Enter your guess"
+              value={currentGuess}
+              onChange={(e) => setCurrentGuess(e.target.value)}
+              onKeyDown={handleKeyPress}
+              variant="outlined" // Adjust as necessary
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleGuess} edge="end" disabled={isGameOver}>
+                      <FaArrowCircleRight color='black' />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          {result && <p className={styles.result}>{result}</p>}
           </div>
-          <TextField
-            label="Enter your guess"
-            value={currentGuess}
-            onChange={(e) => setCurrentGuess(e.target.value)}
-            onKeyDown={handleKeyPress}
-            variant="outlined" // Adjust as necessary
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={handleGuess} edge="end" disabled={isGameOver}>
-                    <FaArrowCircleRight color='black' />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+
         </div>
+        
+        <div className={styles.timerGuessContainer}>
+          {/* Timer */}
+          <div className={styles.timer}>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>
 
-      </div>
-
-      {/* Gray boxes for words */}
-      <div className={styles.boxContainer}>
-        {guessedWords.map((guessed, index) => (
-          <div
-            key={index}
-            className={`${styles.box} ${guessed ? styles.guessed : ''}`}
-          >
-            {index + 1}
+          {/* Gray boxes for words */}
+          <div className={styles.boxContainer}>
+            {guessedWords.map((guessed, index) => (
+              <div
+                key={index}
+                className={`${styles.box} ${guessed ? styles.guessed : ''}`}
+              >
+                {index + 1}
+              </div>
+            ))}
           </div>
-        ))}
+
+          <p className={styles.cluesUsed}>Clues Used: {totalCluesUsed} / 15</p>
+          <button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>
+        </div>
       </div>
-
-      {/* Move result under the grey boxes */}
-      {result && <p className={styles.result}>{result}</p>}
-
-      <p className={styles.cluesUsed}>Clues Used: {totalCluesUsed} / 15</p>
-      <button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>
     </div>
   );
 }
