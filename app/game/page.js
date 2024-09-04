@@ -127,7 +127,7 @@ export default function Game() {
 
         {/* Gray boxes for words */}
         <div className={styles.boxContainer}>
-          Correct Words
+          <div className={styles.text}>Correct Words:</div>
             {guessedWords.map((guessed, index) => (
               <div
                 key={index}
@@ -184,6 +184,7 @@ export default function Game() {
           <div className={styles.timer}>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>
 
           {/* Clues Used */}
+          <div className={styles.text}>Guesses Remaining:</div>
           <div className={styles.cluesGridContainer}>
             {Array.from({ length: 15 }).map((_, index) => (
               <div
