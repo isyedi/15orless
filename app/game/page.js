@@ -9,6 +9,7 @@ import { TextField, IconButton, InputAdornment, Modal } from '@mui/material';
 
 export default function Game() {
   const [clues, setClues] = useState([]);
+  const [cluesUsed, setCluesUsed] = useState(Array(15).fill(false));
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentClueIndex, setCurrentClueIndex] = useState(0);
   const [currentGuess, setCurrentGuess] = useState('');
@@ -44,6 +45,7 @@ export default function Game() {
     setTotalCluesUsed(0);  // Reset total clues used for a new game
     setTime(0);  // Reset the timer for a new game
     setActiveSegments(Array(8).fill(false));
+    setCluesUsed(Array(15).fill(false));
   };
 
   const handleGuess = async () => {
@@ -70,6 +72,14 @@ export default function Game() {
       newGuessedWords[currentWordIndex] = currentWord;  // Mark the word as guessed
       setGuessedWords(newGuessedWords);
 
+      setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
+
+        setCluesUsed((prev) => {
+          const updatedCluesUsed = [...prev];
+          updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
+          return updatedCluesUsed;
+        });
+
       if (currentWordIndex < clues.length - 1) {
         setCurrentWordIndex(currentWordIndex + 1);
         setCurrentClueIndex(0);
@@ -81,14 +91,20 @@ export default function Game() {
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
         setCurrentClueIndex(currentClueIndex + 1);
-        setTotalCluesUsed(totalCluesUsed + 1);  // Increment total clues used
+        setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
+
+        setCluesUsed((prev) => {
+          const updatedCluesUsed = [...prev];
+          updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
+          return updatedCluesUsed;
+        });
+
         setResult('Incorrect');
       } else {
         setResult('No more clues available for this word.');
         setIsGameOver(true);
       }
     }
-    setTotalCluesUsed(totalCluesUsed + 1);  // Increment total clues used for every guess
     setCurrentGuess('');
   };
 
@@ -137,7 +153,7 @@ export default function Game() {
             <div>
               Clue:
             </div>
-            <div>
+            <div className={styles.clue}>
               {clues.length > 0 && clues[currentWordIndex]?.clues ? clues[currentWordIndex].clues[currentClueIndex] : 'Loading...'}
             </div>
             <TextField
@@ -156,8 +172,10 @@ export default function Game() {
                 ),
               }}
             />
-          {result && <p className={styles.result}>{result}</p>}
+            {result && <p className={styles.result}>{result}</p>}
+            <button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>
           </div>
+          
 
         </div>
         
@@ -165,20 +183,17 @@ export default function Game() {
           {/* Timer */}
           <div className={styles.timer}>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>
 
-          {/* Gray boxes for guesses remaining */}
-          <div className={styles.boxContainer}>
-            {guessedWords.map((guessed, index) => (
+          {/* Clues Used */}
+          <div className={styles.cluesGridContainer}>
+            {Array.from({ length: 15 }).map((_, index) => (
               <div
                 key={index}
-                className={`${styles.box} ${guessed ? styles.guessed : ''}`}
+                className={`${styles.clueBox} ${cluesUsed[index] ? styles.guessed : ''}`}
               >
-                {index + 1}
               </div>
             ))}
           </div>
 
-          <p className={styles.cluesUsed}>Clues Used: {totalCluesUsed} / 15</p>
-          <button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>
         </div>
       </div>
 
