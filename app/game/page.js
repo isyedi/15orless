@@ -188,7 +188,7 @@ export default function Game() {
             {Array.from({ length: 15 }).map((_, index) => (
               <div
                 key={index}
-                className={`${styles.clueBox} ${cluesUsed[index] ? styles.guessed : ''}`}
+                className={`${styles.clueBox} ${cluesUsed[index] ? styles.guessed : styles.blurred}`}
               >
               </div>
             ))}
