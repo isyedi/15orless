@@ -39,7 +39,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: space-around;
 }
 
 .circleContainer {
@@ -103,7 +103,7 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .clue {
@@ -117,7 +117,6 @@
 }
 
 .boxContainer {
-  width: 10rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -125,15 +124,28 @@
 }
 
 .box {
-  width: 50px;
+  width: 20rem;
   height: 50px;
   margin: 5px 0;
-  background-color: gray;
+  background-color: white;
+  border: 3px solid black;
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
   font-weight: bold;
+}
+
+.guessedBox {
+  width: 20rem;
+  height: 50px;
+  margin: 5px 0;
+  background-color: white;
+  border: 3px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  box-shadow: 2px 2px 2px 1px black;
 }
 
 .timerGuessContainer {
@@ -145,6 +157,14 @@
 
 .guessed {
   background-color: green;
+}
+
+.guessedWord {
+  background-color: white;
+}
+
+.blurred {
+  opacity: 40%;
 }
 
 

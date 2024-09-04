@@ -111,10 +111,11 @@ export default function Game() {
 
         {/* Gray boxes for words */}
         <div className={styles.boxContainer}>
+          Correct Words
             {guessedWords.map((guessed, index) => (
               <div
                 key={index}
-                className={`${styles.box} ${guessed ? styles.guessed : ''}`}
+                className={`${styles.guessedBox} ${guessed ? styles.guessedWord : styles.blurred}`}
               >
                 {guessed}
               </div>
@@ -180,6 +181,7 @@ export default function Game() {
           <button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>
         </div>
       </div>
+
     </div>
   );
 }
