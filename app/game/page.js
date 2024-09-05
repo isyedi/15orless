@@ -157,6 +157,7 @@ export default function Game() {
               {clues.length > 0 && clues[currentWordIndex]?.clues ? clues[currentWordIndex].clues[currentClueIndex] : 'Loading...'}
             </div>
             <TextField
+              className={styles.textField}
               label="Enter your guess"
               value={currentGuess}
               onChange={(e) => setCurrentGuess(e.target.value)}
