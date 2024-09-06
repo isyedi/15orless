@@ -173,15 +173,7 @@ export default function Game() {
               onChange={(e) => setCurrentGuess(e.target.value)}
               onKeyDown={handleKeyPress}
               variant="outlined" // Adjust as necessary
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleGuess} edge="end" disabled={isGameOver}>
-                      <FaArrowCircleRight color='black' />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
+
             />
             {result && <p className={styles.result}>{result}</p>}
             {/*<button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>*/}

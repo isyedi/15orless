@@ -5,7 +5,6 @@
     height: 100vh;
     width: 100vw;
     overflow: hidden;
-    background-color: #FBECE4;
   }
   
 .header {
@@ -154,7 +153,7 @@
   height: 50px;
   margin: 5px 0;
   border-radius: 4px;
-  background-color: #FBECE4;
+  background-color: white;
   border: 3px solid black;
   display: flex;
   justify-content: center;
@@ -189,6 +188,15 @@
   margin-bottom: 0.2rem;
 }
 
+@media (min-width: 431px) {
+  .cluesCountdown {
+    display: none;
+  }
+
+  .timerGuessContainer {
+    margin-bottom: 2rem;
+  }
+}
 
 
 
@@ -259,13 +267,6 @@
     width: 40px;  
     height: 40px; 
     font-size: 1rem; 
-  }
-
-  .timerGuessContainer {
-    width: 40vw; 
-    max-width: 25rem; 
-    order: 1;
-    padding-bottom: 30px;
   }
 
 }
@@ -342,14 +343,6 @@
     height: 20px; 
     font-size: 2rem; 
   }
-
-  .timerGuessContainer {
-    width: 60vw; 
-    max-width: 30rem; 
-    order: 1;
-    padding-bottom: 30px;
-  }
-
 }
 
 
@@ -370,7 +363,7 @@
     height: auto; 
   }
 
-  .circleContainer {
+  /*.circleContainer {
     display: flex;
     justify-content: center; 
     align-items: center;    
@@ -380,12 +373,10 @@
     max-height: 30rem;
     order: 2;
     padding: 50px;
-  }
-  
-  .gameArea {
-    width: 80vw;            
-    max-width: 25rem;       
-    height: auto;       
+  }*/
+
+  .circleSegment {
+    display: none;
   }
 
   .textField {
@@ -398,16 +389,18 @@
 
   .boxContainer {
     display: grid;
+    justify-content: center;
+    align-items: center;
+    width: auto;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px; /* Adjust spacing between grid items as needed */
-    align-items: center;
-    justify-content: center;
-    margin-top: 10px;
+    margin-top: 16px;
   }
 
   .guessedBox {
+    max-height: fit-content;
     max-width: 80px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     padding: 10px;
   }
   
@@ -416,7 +409,7 @@
   }
 
   .guessedWord {
-    background-color: white;
+    background-color: #BCD4B4;
   }
 
   .cluesGridContainer {
@@ -426,6 +419,7 @@
   .cluesCountdown {
     background-color: white;
     margin-top: 10px;
+    margin-bottom: 16px;
     padding-left: 2rem;
     padding-right: 2rem;
     border: 3px solid black;
@@ -438,18 +432,7 @@
 
 
 
-/* @media (max-width: 390px) {
-  .header {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .title {
-    font-size: 2.5rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-
+@media (max-width: 320px) {
   .mainContentContainer {
     flex-direction: column;
     height: auto; 
@@ -459,12 +442,15 @@
     display: flex;
     justify-content: center; 
     align-items: center;    
-    width: 70vw;            
-    height: 70vw;           
+    width: 90vw;            
+    height: 90vw;           
     max-width: 30rem;       
     max-height: 30rem;
     order: 2;
-    padding-bottom: 30px;
+  }
+
+  .boxContainer {
+    grid-template-columns: repeat(3, 1fr);
   }
   
   .gameArea {
@@ -477,45 +463,10 @@
     font-size: 1.5rem;
   }
 
-  .button {
-    padding: 4px 12px;
-    margin-top: 8px;
-  }
+  .guessedBox {
+    width: 100%;
+  } 
 
-  .boxContainer {
-  font-size: 1.5rem; 
-  order: 4;
-  }
-
-  .guessedBox, .guessedWord{
-    width: 300px; 
-    box-sizing: border-box;
-    padding: 10px;
-  }
-
-  .cluesGridContainer {
-    display: flex;
-    justify-content: center; 
-    width: 300px; 
-    gap: 5px;
-  }
-  
-  .clueBox {
-    width: 15px;  
-    height: 15px; 
-    font-size: 1rem; 
-  }
-
-  .timerGuessContainer {
-    width: 70vw; 
-    max-width: 25rem; 
-    order: 1;
-    padding-bottom: 30px;
-  }
-
-  .timer {
-    font-size: 2.5rem;
-  }
-} */
+} 
 
 
