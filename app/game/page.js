@@ -23,6 +23,8 @@ export default function Game() {
   const [time, setTime] = useState(0);
 
   const [count, setCount] = useState(15);
+  const [shake, setShake] = useState(false);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     let timer;
@@ -71,6 +73,8 @@ export default function Game() {
 
     if (guessResponse.data.result === 'correct') {
       setResult('Correct');
+      setShake(false);
+      setIsError(false);
 
       // Light up the corresponding segment
       setActiveSegments((prev) =>
@@ -109,6 +113,16 @@ export default function Game() {
         });
 
         setResult('Incorrect');
+        setIsError(true);
+        setTimeout(() => {
+          setIsError(false);
+        }, 500)
+
+        setShake(true);
+        setTimeout(() => {
+          setShake(false);  // Stop shaking after animation
+        }, 500);  // Shake duration (match CSS animation)
+        
       } else {
         setResult('You lose!');
         setIsGameOver(true);
@@ -182,7 +196,8 @@ export default function Game() {
 
 
             <TextField
-              className={styles.textField}
+              className={`${styles.textField} ${shake ? styles.shake : ''}`}
+              error={isError} // Set error state for incorrect guesses
               label="Guess"
               value={currentGuess}
               onChange={(e) => setCurrentGuess(e.target.value)}
@@ -198,7 +213,7 @@ export default function Game() {
                 ),
               }}
             />
-            {result && <p className={styles.result}>{result}</p>}
+            {/*{result && <p className={styles.result}>{result}</p>}*/}
             {/*<button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>*/}
           </div>
           
