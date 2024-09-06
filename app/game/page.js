@@ -98,7 +98,7 @@ export default function Game() {
         setResult('You win!');
       }
     } else {
-      if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && clues !== 0) {
+      if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && count > 0) {
         setCurrentClueIndex(currentClueIndex + 1);
         setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
 
