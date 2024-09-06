@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
 import { FaArrowCircleRight } from "react-icons/fa";
+import { FiMenu } from "react-icons/fi";
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import { BiSolidBarChartAlt2 } from "react-icons/bi";
 import { TextField, IconButton, InputAdornment, Modal } from '@mui/material';
 
 
@@ -125,7 +128,8 @@ export default function Game() {
 
       {/* Header Section with Title */}
       <div className={styles.header}>
-        <h1 className={styles.title}>15 or Less</h1>
+        <div className={styles.menu}> <FiMenu /> </div>
+        <h1 className={styles.title}>{count} or Less</h1>
       </div>
 
       {/* Main content container */}
@@ -133,7 +137,7 @@ export default function Game() {
 
         {/* Gray boxes for words */}
         <div className={styles.boxContainer}>
-          <div className={styles.text}>Correct Words:</div>
+          {/*<div className={styles.text}>Correct Words:</div>*/}
             {guessedWords.map((guessed, index) => (
               <div
                 key={index}
@@ -179,11 +183,13 @@ export default function Game() {
 
             <TextField
               className={styles.textField}
-              label="Enter your guess"
+              label="Guess"
               value={currentGuess}
               onChange={(e) => setCurrentGuess(e.target.value)}
               onKeyDown={handleKeyPress}
               variant="outlined" // Adjust as necessary
+              disabled={isGameOver} // Disable the input field when the game is over
+              inputProps={{ maxLength: 20 }} // Set the maximum length of the input field 
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -216,10 +222,7 @@ export default function Game() {
             ))}
           </div>
 
-          {/* Clues Used Mobile */}
-          <div className={styles.cluesCountdown}>
-            {count}
-          </div>
+          
 
         </div>
       </div>
