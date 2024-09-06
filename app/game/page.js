@@ -164,7 +164,18 @@ export default function Game() {
             </div>
 
             {/* Length of word */}
-            {/* TODO: make underscores to display length of guess word and have num to make it easier to know */}
+            <div className={styles.underscoresContainer}>
+              {clues.length > 0 &&
+                clues[currentWordIndex]?.word
+                  .split('')
+                  .map((letter, index) => (
+                    <span key={index} className={styles.underscore}>
+                      _
+                    </span>
+                  ))}
+                <span>{clues[currentWordIndex]?.word.length}</span>
+            </div>
+
 
             <TextField
               className={styles.textField}
@@ -173,7 +184,13 @@ export default function Game() {
               onChange={(e) => setCurrentGuess(e.target.value)}
               onKeyDown={handleKeyPress}
               variant="outlined" // Adjust as necessary
-
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <span style={{ color: 'black' }}>{currentGuess.length}</span>
+                  </InputAdornment>
+                ),
+              }}
             />
             {result && <p className={styles.result}>{result}</p>}
             {/*<button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>*/}
