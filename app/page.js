@@ -4,7 +4,7 @@
 import { Box, Button, Modal, Typography } from "@mui/material";
 import Head from "next/head";
 import Image from "next/image";
-import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs'
+import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton, SignOutButton } from '@clerk/nextjs'
 import { Alfa_Slab_One } from "next/font/google";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { useState } from "react";
@@ -69,6 +69,8 @@ export default function Home() {
             15 Or Less
           </Typography>
 
+            
+            
           <Typography
             variant="h6"
             sx={{ 
@@ -108,7 +110,39 @@ export default function Home() {
             >
               Log In
             </Button>
+            
           </SignedOut>
+
+          <SignedIn>
+          <SignOutButton asChild>
+            <Button
+              variant="contained" 
+              disableRipple
+              sx={{
+                py: 1.5,
+                width: '80%',
+                fontSize: { xs: '16px', sm: '20px' },
+                fontWeight: 'bold',
+                color: 'black',
+                background: 'white', 
+                border: '3px solid black',
+                borderRadius: 1,
+                cursor: 'pointer',
+                textTransform: 'none',
+                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                '&:hover': {
+                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                '&:active': {
+                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                fontFamily: alfaSlabOne.style.fontFamily,
+              }}
+            >
+              Sign Out
+            </Button>
+          </SignOutButton>
+        </SignedIn>
 
           <Button 
             href="/game"
@@ -122,7 +156,7 @@ export default function Home() {
               fontSize: { xs: '16px', sm: '20px' },
               fontWeight: 'bold',
               color: 'white',
-              background: '#E867EA', 
+              background: '#919D89', 
               border: '3px solid black',
               borderRadius: 1,
               cursor: 'pointer',

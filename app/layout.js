@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
       appearance={{
         baseTheme: neobrutalism,
         variables: {
-          colorPrimary: "#E867EA",
+          colorPrimary: "#919D89",
           fontSize: '1rem',
           border: 'none',
         },

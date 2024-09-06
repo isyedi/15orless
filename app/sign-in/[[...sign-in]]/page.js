@@ -56,7 +56,15 @@ export default function SignInPage() {
                 }}
             >
                 <a href="/" style={{ textDecoration: 'none', cursor: 'pointer', marginBottom: '16px' }}>
-                    <ArrowBackIcon style={{ fontSize: '24px' }} />
+                    <ArrowBackIcon 
+                        sx={{ 
+                            fontSize: '24px', 
+                            color: 'black', 
+                            '&:hover': {
+                                color: '#919D89', 
+                            } 
+                        }} 
+                    />
                 </a>
 
                 <SignIn
@@ -87,7 +95,8 @@ export default function SignInPage() {
                             },
                             socialButtonsBlockButtonText:{
                                 fontSize: 11
-                            }
+                            },
+                            
                             
                         },
                         variables: {
