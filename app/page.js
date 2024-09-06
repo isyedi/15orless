@@ -82,12 +82,42 @@ export default function Home() {
             8 Words, 15 Chances. Can You Guess It?
           </Typography>
 
+          <Button 
+            href="/game"
+            variant="contained" 
+            disableRipple
+            sx={{
+              mb: 2,
+              py: 1.5,
+              width: '80%',
+              fontSize: { xs: '16px', sm: '20px' },
+              fontWeight: 'bold',
+              color: 'white',
+              background: '#919D89', 
+              border: '3px solid black',
+              borderRadius: 1,
+              cursor: 'pointer',
+              textTransform: 'none',
+              boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+              '&:hover': {
+                boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+              }, 
+              '&:active': {
+                boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+              }, 
+              fontFamily: alfaSlabOne.style.fontFamily,
+            }}
+          >
+            Start Playing
+          </Button>
+
           <SignedOut>
             <Button 
               href="/sign-in"
               variant="contained" 
               disableRipple
               sx={{
+                mb: 3,
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
@@ -119,6 +149,7 @@ export default function Home() {
               variant="contained" 
               disableRipple
               sx={{
+                mb: 3,
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
@@ -143,36 +174,6 @@ export default function Home() {
             </Button>
           </SignOutButton>
         </SignedIn>
-
-          <Button 
-            href="/game"
-            variant="contained" 
-            disableRipple
-            sx={{
-              mt: 2,
-              mb: 3,
-              py: 1.5,
-              width: '80%',
-              fontSize: { xs: '16px', sm: '20px' },
-              fontWeight: 'bold',
-              color: 'white',
-              background: '#919D89', 
-              border: '3px solid black',
-              borderRadius: 1,
-              cursor: 'pointer',
-              textTransform: 'none',
-              boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-              '&:hover': {
-                boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
-              }, 
-              '&:active': {
-                boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-              }, 
-              fontFamily: alfaSlabOne.style.fontFamily,
-            }}
-          >
-            Start Playing
-          </Button>
 
           <Box onClick={handleOpen} sx={{ 
             cursor: 'pointer', 
