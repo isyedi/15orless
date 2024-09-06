@@ -3,6 +3,9 @@
     flex-direction: column;
     align-items: center;
     height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: #FBECE4;
   }
   
 .header {
@@ -39,7 +42,7 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-evenly;
 }
 
 .circleContainer {
@@ -52,7 +55,7 @@
   width: 100%;
   height: 100%;
   border: 10px solid transparent;
-  border-top-color: #d3d3d3; /* Initial color for inactive segments */
+  border-top-color: #C4C9C1; /* Initial color for inactive segments */
   border-radius: 50%;
   clip-path: polygon(50% 0%, 100% 0%, 100% 100%, 50% 100%);
   transform-origin: center;
@@ -91,7 +94,7 @@
 }
 
 .active {
-  border-top-color: #48F2FB; /* Color for active segments */
+  border-top-color: #909D89; /* Color for active segments */
 }
 
 
@@ -104,6 +107,10 @@
   justify-content: center;
   align-items: center;
   gap: 8px;
+}
+
+.textField {
+  background-color: white;
 }
 
 .clue {
@@ -138,7 +145,7 @@
   border-radius: 4px;
   justify-content: center;
   border: 3px solid black;
-  background-color: white; /* Default background color */
+  background-color: #FBECE4; /* Default background color */
   box-shadow: 2px 2px 2px 1px black;
 }
 
@@ -147,7 +154,7 @@
   height: 50px;
   margin: 5px 0;
   border-radius: 4px;
-  background-color: white;
+  background-color: #FBECE4;
   border: 3px solid black;
   display: flex;
   justify-content: center;
@@ -165,27 +172,15 @@
 }
 
 .guessed {
-  background-color: #E867EA;
+  background-color: #BCD4B4;
 }
 
 .guessedWord {
-  background-color: white;
+  background-color: #BCD4B4;
 }
 
 .blurred {
   opacity: 40%;
-}
-
-
-.timer {
-  width: 80%;
-  font-size: 4rem;
-  font-weight: bolder;
-  border: 3px solid black;
-  box-shadow: 2px 2px 2px 1px black;
-  display: flex;
-  justify-content: center;
-  margin-bottom: 1.5rem;
 }
 
 .text {
@@ -273,9 +268,6 @@
     padding-bottom: 30px;
   }
 
-  .timer {
-    font-size: 2.5rem;
-  }
 }
 
 
@@ -358,21 +350,17 @@
     padding-bottom: 30px;
   }
 
-  .timer {
-    font-size: 2.5rem;
-  }
 }
 
 
 
 @media (max-width: 430px) {
   .header {
-    padding: 1rem;
-    margin-bottom: 1.5rem;
+    display: none;
   }
 
   .title {
-    font-size: 2.5rem;
+    font-size: 1.5rem;
     padding-left: 2rem;
     padding-right: 2rem;
   }
@@ -386,16 +374,16 @@
     display: flex;
     justify-content: center; 
     align-items: center;    
-    width: 70vw;            
-    height: 70vw;           
+    width: 90vw;            
+    height: 90vw;           
     max-width: 30rem;       
     max-height: 30rem;
     order: 2;
-    padding-bottom: 30px;
+    padding: 50px;
   }
   
   .gameArea {
-    width: 75vw;            
+    width: 80vw;            
     max-width: 25rem;       
     height: auto;       
   }
@@ -408,50 +396,49 @@
     font-size: 1.5rem;
   }
 
-  .button {
-    padding: 4px 12px;
-    margin-top: 8px;
-  }
-
   .boxContainer {
-  font-size: 1.5rem; 
-  order: 4;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px; /* Adjust spacing between grid items as needed */
+    align-items: center;
+    justify-content: center;
+    margin-top: 10px;
   }
 
-  .guessedBox, .guessedWord{
-    width: 300px; 
-    box-sizing: border-box;
+  .guessedBox {
+    max-width: 80px;
+    font-size: 0.9rem;
     padding: 10px;
+  }
+  
+  .text {
+    display: none;
+  }
+
+  .guessedWord {
+    background-color: white;
   }
 
   .cluesGridContainer {
-    display: flex;
-    justify-content: center; 
-    width: 400px; 
-    gap: 5px;
+    display: none;
+  }
+
+  .cluesCountdown {
+    background-color: white;
+    margin-top: 10px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    border: 3px solid black;
+    box-shadow: 2px 2px 2px 1px black;
+    font-size: 3rem;
+    font-weight: 500;
   }
   
-  .clueBox {
-    width: 15px;  
-    height: 15px; 
-    font-size: 1rem; 
-  }
-
-  .timerGuessContainer {
-    width: 60vw; 
-    max-width: 30rem; 
-    order: 1;
-    padding-bottom: 30px;
-  }
-
-  .timer {
-    font-size: 2.5rem;
-  }
 }
 
 
 
-@media (max-width: 390px) {
+/* @media (max-width: 390px) {
   .header {
     padding: 1rem;
     margin-bottom: 1.5rem;
@@ -529,6 +516,6 @@
   .timer {
     font-size: 2.5rem;
   }
-}
+} */
 
 

@@ -19,6 +19,8 @@ export default function Game() {
   const [totalCluesUsed, setTotalCluesUsed] = useState(0);  // Track total number of clues used
   const [time, setTime] = useState(0);
 
+  const [count, setCount] = useState(15);
+
   useEffect(() => {
     let timer;
     if (!isGameOver) {
@@ -46,10 +48,14 @@ export default function Game() {
     setTime(0);  // Reset the timer for a new game
     setActiveSegments(Array(8).fill(false));
     setCluesUsed(Array(15).fill(false));
+    setCount(15);
   };
 
   const handleGuess = async () => {
     const currentWord = clues[currentWordIndex].word;
+
+    // decrement 15
+    setCount((prev) => prev - 1);
     
     // Normalize both the guess and the correct word
     const normalizedGuess = currentGuess.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -86,10 +92,10 @@ export default function Game() {
         setCurrentGuess('');
       } else {
         setIsGameOver(true);
-        setResult('You have guessed all the words correctly!');
+        setResult('You win!');
       }
     } else {
-      if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
+      if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && clues !== 0) {
         setCurrentClueIndex(currentClueIndex + 1);
         setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
 
@@ -101,7 +107,7 @@ export default function Game() {
 
         setResult('Incorrect');
       } else {
-        setResult('No more clues available for this word.');
+        setResult('You lose!');
         setIsGameOver(true);
       }
     }
@@ -156,6 +162,10 @@ export default function Game() {
             <div className={styles.clue}>
               {clues.length > 0 && clues[currentWordIndex]?.clues ? clues[currentWordIndex].clues[currentClueIndex] : 'Loading...'}
             </div>
+
+            {/* Length of word */}
+            {/* TODO: make underscores to display length of guess word and have num to make it easier to know */}
+
             <TextField
               className={styles.textField}
               label="Enter your guess"
@@ -174,7 +184,7 @@ export default function Game() {
               }}
             />
             {result && <p className={styles.result}>{result}</p>}
-            <button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>
+            {/*<button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>*/}
           </div>
           
 
@@ -182,18 +192,24 @@ export default function Game() {
         
         <div className={styles.timerGuessContainer}>
           {/* Timer */}
-          <div className={styles.timer}>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>
+          {/*<div className={styles.timer}>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>*/}
 
-          {/* Clues Used */}
-          <div className={styles.text}>Guesses Remaining:</div>
+          {/* Clues Used Desktop */}
+          <div className={styles.text}>Guesses Used:</div>
           <div className={styles.cluesGridContainer}>
             {Array.from({ length: 15 }).map((_, index) => (
               <div
                 key={index}
                 className={`${styles.clueBox} ${cluesUsed[index] ? styles.guessed : styles.blurred}`}
               >
+                {index + 1}
               </div>
             ))}
+          </div>
+
+          {/* Clues Used Mobile */}
+          <div className={styles.cluesCountdown}>
+            {count}
           </div>
 
         </div>
