@@ -25,6 +25,7 @@ export default function Game() {
   const [count, setCount] = useState(15);
   const [shake, setShake] = useState(false);
   const [isError, setIsError] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
 
   useEffect(() => {
     let timer;
@@ -75,6 +76,11 @@ export default function Game() {
       setResult('Correct');
       setShake(false);
       setIsError(false);
+      setIsCorrect(true);
+
+      setTimeout(() => {
+        setIsCorrect(false);
+      }, 800)
 
       // Light up the corresponding segment
       setActiveSegments((prev) =>
@@ -116,7 +122,7 @@ export default function Game() {
         setIsError(true);
         setTimeout(() => {
           setIsError(false);
-        }, 500)
+        }, 800)
 
         setShake(true);
         setTimeout(() => {
@@ -199,6 +205,7 @@ export default function Game() {
               className={`${styles.textField} ${shake ? styles.shake : ''}`}
               error={isError} // Set error state for incorrect guesses
               label="Guess"
+              color={isCorrect ? 'success' : 'primary'}
               value={currentGuess}
               onChange={(e) => setCurrentGuess(e.target.value)}
               onKeyDown={handleKeyPress}
