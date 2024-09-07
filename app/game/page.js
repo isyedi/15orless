@@ -7,7 +7,13 @@ import { FaArrowCircleRight } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import { BiSolidBarChartAlt2 } from "react-icons/bi";
-import { TextField, IconButton, InputAdornment, Modal } from '@mui/material';
+import { TextField, IconButton, InputAdornment, Modal, Box, Button, Menu, MenuItem } from '@mui/material';
+import { SignedOut, SignInButton, SignOutButton, UserButton, useUser } from '@clerk/clerk-react'; 
+import { fontWeight, Stack } from '@mui/system';
+import { SignedIn } from '@clerk/nextjs';
+
+
+
 
 
 export default function Game() {
@@ -26,6 +32,10 @@ export default function Game() {
   const [shake, setShake] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const { isSignedIn } = useUser();
 
   useEffect(() => {
     let timer;
@@ -56,6 +66,16 @@ export default function Game() {
     setCluesUsed(Array(15).fill(false));
     setCount(15);
   };
+
+  
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
 
   const handleGuess = async () => {
     const currentWord = clues[currentWordIndex].word;
@@ -144,13 +164,116 @@ export default function Game() {
   };
 
   return (
+    
     <div className={styles.container}>
-
       {/* Header Section with Title */}
       <div className={styles.header}>
-        <div className={styles.menu}> <FiMenu /> </div>
+      <div className={styles.menu}>
+        <FiMenu onClick={handleClick} style={{ cursor: 'pointer' }} /> 
+      </div>
         <h1 className={styles.title}>{count} or Less</h1>
       </div>
+
+      
+      <Menu
+        
+        id="positioned-menu"
+        anchorEl={anchorEl}
+        open={open}  
+        onClose={handleClose}  
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        style={{
+          marginLeft: '-10px',
+          marginTop: '20px',
+        }}
+        PaperProps={{
+          style: {
+            width: 200, 
+            height: 'auto', 
+            overflowY: 'auto', 
+            border: '3px solid black',
+            boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+            padding: '10px',
+          },
+        }}
+      >
+        
+      
+    <Stack direction="column" spacing={2}>
+      <SignedOut>
+        <Button
+          href="/sign-in"
+          disableRipple
+          sx={{
+            border: '3px solid black',
+            boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+            backgroundColor: 'white',
+            color: 'black',
+            fontWeight: "bold",
+            '&:hover': {
+              boxShadow: '5px 5px 0px 0px rgba(0, 0, 0, 1)',
+            }, 
+            '&:active': {
+              boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+            }, 
+          }}
+          >
+            Sign In
+          </Button>
+          </SignedOut>
+
+          <SignedIn>
+            <SignOutButton asChild>
+              <Button
+                disableRipple
+                sx={{
+                  border: '3px solid black',
+                  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                  backgroundColor: 'white',
+                  color: 'black',
+                  fontWeight: "bold",
+                  '&:hover': {
+                    boxShadow: '5px 5px 0px 0px rgba(0, 0, 0, 1)',
+                  }, 
+                  '&:active': {
+                    boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                  }
+                }}>
+                  Sign Out
+              </Button>
+            </SignOutButton>
+          </SignedIn>
+          
+          <Button
+          disableRipple
+          sx={{
+            border: '3px solid black',
+            boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+            backgroundColor: 'white',
+            color: 'black',
+            fontWeight: 'bold',
+            '&:hover': {
+              boxShadow: '5px 5px 0px 0px rgba(0, 0, 0, 1)',
+            }, 
+            '&:active': {
+              boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+            }, 
+          }}>
+            How To Play
+          </Button>
+            
+      </Stack>
+        
+        
+      </Menu>
+      
 
       {/* Main content container */}
       <div className={styles.mainContentContainer}>
