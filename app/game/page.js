@@ -27,6 +27,11 @@ export default function Game() {
   const [isError, setIsError] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
+  const win = new Audio('/audio/win.mp3');
+  const lose = new Audio('/audio/lose.mp3');
+  const correct = new Audio('/audio/correct.mp3');
+  const incorrect = new Audio('/audio/incorrect.mp3');
+
   useEffect(() => {
     let timer;
     if (!isGameOver) {
@@ -52,9 +57,9 @@ export default function Game() {
     setGuessedWords(Array(8).fill(false));  // Reset guessed words for a new game
     setTotalCluesUsed(0);  // Reset total clues used for a new game
     setTime(0);  // Reset the timer for a new game
-    setActiveSegments(Array(8).fill(false));
-    setCluesUsed(Array(15).fill(false));
-    setCount(15);
+    setActiveSegments(Array(8).fill(false));  // Reset circle segments
+    setCluesUsed(Array(15).fill(false)); // Reset clue grid container
+    setCount(15); // Reset clue countdown
   };
 
   const handleGuess = async () => {
@@ -103,9 +108,13 @@ export default function Game() {
         setCurrentWordIndex(currentWordIndex + 1);
         setCurrentClueIndex(0);
         setCurrentGuess('');
+        if (!isGameOver) {
+          correct.play() // Play correct sound
+        }
       } else {
         setIsGameOver(true);
         setResult('You win!');
+        win.play() // Play win sound
       }
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && count > 0) {
@@ -128,10 +137,15 @@ export default function Game() {
         setTimeout(() => {
           setShake(false);  // Stop shaking after animation
         }, 500);  // Shake duration (match CSS animation)
+
+        if (!isGameOver) {
+          incorrect.play() // Play incorrect sound
+        }
         
       } else {
         setResult('You lose!');
         setIsGameOver(true);
+        lose.play() // Play lose sound
       }
     }
     setCurrentGuess('');
