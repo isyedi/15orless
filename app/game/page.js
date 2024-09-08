@@ -40,6 +40,13 @@ export default function Game() {
   const [endGameGuesses, setEndGameGuesses] = useState('')
   const router = useRouter(); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  
+  //userdata
+  const [userId, setUserId] = useState('');
+  const [gamesPlayed, setGamesPlayed] = useState(0);
+  const [gamesWon, setGamesWon] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [lastDatePlayed, setLastDatePlayed] = useState('');
 
   const [count, setCount] = useState(15);
   const [shake, setShake] = useState(false);
@@ -98,13 +105,62 @@ export default function Game() {
     setTime(0);  // Reset the timer for a new game
     setActiveSegments(Array(8).fill(false));
     setCluesUsed(Array(15).fill(false));
-    setEndGameTitle('')
-    setEndGameGuesses('')
+    setEndGameTitle(''); // Set Endgame Title based on win or loss
+    setEndGameGuesses('');  // Set Endgame guesses based on win or loss
     setActiveSegments(Array(8).fill(false));  // Reset circle segments
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
     setCount(15); // Reset clue countdown
+    setUserId('1'); // Store user id 
+    setCurrentStreak(0)
+    setLastDatePlayed('')
+    setGamesWon(0)
+    getUserData(userId)
   };
 
+  const getUserData = async (p) => {
+    try {
+      const response = await axios.get("/api/get-user-data", {
+        params: { p },
+      });
+
+      console.log(userData)// Store the retrieved data in state
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        return new Response(JSON.stringify({ error: error.response }), { status: 500 });
+      } else {
+        console.log("Error retrieving user data");
+      }
+    }
+  }
+
+  const updateUserData = async (userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed) => {
+    try {
+
+      const response = await axios.post('/api/handle-user-data', {
+        eventData: {
+          userId,
+          gamesPlayed,
+          gamesWon,
+          currentStreak,
+          lastDatePlayed,
+        },
+      });
+
+      return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error("Error submitting data:", error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response received:", error.request);
+      } else {
+        // Something else caused an error
+        console.error("Error:", error.message);
+      }
+    }
+  };
 
   const handleGuess = async () => {
     const currentWord = clues[currentWordIndex].word;
@@ -210,15 +266,26 @@ export default function Game() {
   const endGame = async () => {
     setIsGameOver(true)
     setOpen(true)
+    setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
+
+    //validate for streak here
+    // if {
+    // }
+    // else {
+
+    // }
     
     if (guessedWords.filter(Boolean).length == 8) {
       setEndGameTitle('You got 15 or less!')
       setEndGameGuesses(`All guesses used!`)
+      setGamesWon((prevGamesWon) => prevGamesWon + 1)
     }
     else{
       setEndGameTitle('Thanks for playing!')
       setEndGameGuesses(`${15 - totalCluesUsed} guesses left!`)
     }
+
+    updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
 
   }
 
@@ -454,7 +521,7 @@ export default function Game() {
             width="90%"
             height="90%"
             maxWidth="1000px"
-            maxHeight="500px"
+            maxHeight="600px"
             bgcolor="white"
             boxShadow="5px 5px 0px 0px rgba(0, 0, 0, 1)"
             p={3}
@@ -472,7 +539,7 @@ export default function Game() {
               Check back in starting midnight for the next puzzle!
             </Typography>
 
-            <Stack direction="row" spacing={25} sx = {{ pt: 10}}>
+            <Stack direction="row" spacing={25} sx = {{ pt: 10, justifyContent: 'center'}}>
                 <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
                   {`${guessedWords.filter(Boolean).length} out of 8`} <br />  {`words correct!`}
                   </Typography>
@@ -486,10 +553,27 @@ export default function Game() {
                   <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
                     <span className={styles.timeEndGame}>Time: </span>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}
                   </Typography>
-
             </Stack>
 
-            <Stack direction = 'row' spacing = {2} sx = {{ pt: 10, pl: 25, pr: 25, textAlign: 'center', justifyContent: 'center'}}>
+            <Stack direction="row" spacing={25} sx = {{ pt: 10, textAlign: 'center', justifyContent: 'center'}}>
+                <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                  All time stats
+                  </Typography>
+                
+
+                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                    win %
+                  </Typography>
+
+                  
+                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                    current streak
+                  </Typography>
+            </Stack>
+
+
+
+            <Stack direction = 'row' spacing = {2} sx = {{ pt: 8, pl: 25, pr: 25, textAlign: 'center', justifyContent: 'center'}}>
               <Button variant="contained" onClick = {handleClose}
                 disableRipple
               sx={{
@@ -538,6 +622,7 @@ export default function Game() {
                 Share <ShareIcon />
               </Button>
             </Stack>
+
           </Box>
         </Modal>
 
