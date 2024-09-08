@@ -60,7 +60,6 @@ export default function Home() {
           <Typography
             variant="h3"
             sx={{
-              fontWeight: 'bold', 
               fontFamily: alfaSlabOne.style.fontFamily,
               textAlign: 'center',
               fontSize: { xs: 'h4.fontSize', sm: 'h3.fontSize' },
@@ -82,16 +81,44 @@ export default function Home() {
             8 Words, 15 Chances. Can You Guess It?
           </Typography>
 
+          <Button 
+            href="/game"
+            variant="contained" 
+            disableRipple
+            sx={{
+              mb: 2,
+              py: 1.5,
+              width: '80%',
+              fontSize: { xs: '16px', sm: '20px' },
+              color: 'black',
+              background: '#BCD4B4', 
+              border: '3px solid black',
+              borderRadius: 1,
+              cursor: 'pointer',
+              textTransform: 'none',
+              boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+              '&:hover': {
+                boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+              }, 
+              '&:active': {
+                boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+              }, 
+              fontFamily: alfaSlabOne.style.fontFamily,
+            }}
+          >
+            Start Playing
+          </Button>
+
           <SignedOut>
             <Button 
               href="/sign-in"
               variant="contained" 
               disableRipple
               sx={{
+                mb: 3,
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
-                fontWeight: 'bold',
                 color: 'black',
                 background: 'white', 
                 border: '3px solid black',
@@ -113,16 +140,16 @@ export default function Home() {
             
           </SignedOut>
 
-          <SignedIn>
+        <SignedIn>
           <SignOutButton asChild>
             <Button
               variant="contained" 
               disableRipple
               sx={{
+                mb: 3,
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
-                fontWeight: 'bold',
                 color: 'black',
                 background: 'white', 
                 border: '3px solid black',
@@ -144,36 +171,6 @@ export default function Home() {
           </SignOutButton>
         </SignedIn>
 
-          <Button 
-            href="/game"
-            variant="contained" 
-            disableRipple
-            sx={{
-              mt: 2,
-              mb: 3,
-              py: 1.5,
-              width: '80%',
-              fontSize: { xs: '16px', sm: '20px' },
-              fontWeight: 'bold',
-              color: 'white',
-              background: '#919D89', 
-              border: '3px solid black',
-              borderRadius: 1,
-              cursor: 'pointer',
-              textTransform: 'none',
-              boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-              '&:hover': {
-                boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
-              }, 
-              '&:active': {
-                boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-              }, 
-              fontFamily: alfaSlabOne.style.fontFamily,
-            }}
-          >
-            Start Playing
-          </Button>
-
           <Box onClick={handleOpen} sx={{ 
             cursor: 'pointer', 
             '&:hover': {
@@ -181,7 +178,6 @@ export default function Home() {
                 color: 'black', 
                 transform: 'scale(1.1)', 
               },
-              fontWeight: 'bold'
             } 
           }}>
             <HelpOutlineIcon style={{ fontSize: 40 }}/>
