@@ -4,7 +4,7 @@ import { useState, useEffect} from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
 import { SignedIn, SignedOut, SignOutButton, UserButton, UserProfile } from '@clerk/nextjs';
-import { FaArrowCircleRight } from "react-icons/fa";
+import ShareIcon from '@mui/icons-material/Share';
 
 import { Box, Typography, Stack} from "@mui/material";
 import { useRouter } from 'next/navigation';
@@ -157,7 +157,7 @@ export default function Game() {
         }
       } else {
         setIsGameOver(true);
-        setResult('You win!');
+        handleOpen(true);
         win() // Play win sound
       }
     } else {
@@ -187,16 +187,16 @@ export default function Game() {
         }
         
       } else {
-        setResult('You lose!');
         setIsGameOver(true);
+        handleOpen(true);
         lose() // Play lose sound
       }
     }
     setCurrentGuess('');
   };
 
-  const handleExit = () => {
-    router.push('/');
+  const handleExit = () => {////////////////////////////////////////////////
+    router.push('/game');
   }
 
   const handleKeyPress = (e) => {
@@ -225,7 +225,7 @@ export default function Game() {
     setOpen(true);
   };
   const handleClose = () => {
-    setIsGameOver(false);
+    setOpen(false);
   }
 
   const toggleSidebar = () => {
@@ -438,9 +438,9 @@ export default function Game() {
 
         </div>
 
-      {/* Endgame Modal Win*/}
+      {/* Endgame Modal Win */}
       <Modal
-        open={isGameOver}
+        open={open}
         onClose={handleClose}
         aria-labelledby="how-to-play-title"
         aria-describedby="how-to-play-description"
@@ -489,13 +489,12 @@ export default function Game() {
             </Stack>
 
             <Stack direction = 'row' spacing = {2} sx = {{ pt: 10, pl: 25, pr: 25, textAlign: 'center', justifyContent: 'center'}}>
-              <Button variant="contained" onClick = {handleExit}
+              <Button variant="contained" onClick = {handleClose}
                 disableRipple
               sx={{
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
-                fontWeight: 'bold',
                 color: 'black',
                 background: 'white', 
                 border: '3px solid black',
@@ -511,15 +510,15 @@ export default function Game() {
                 }, 
                 fontFamily: alfaSlabOne.style.fontFamily,
               }}>
-                Exit
+                Back to Puzzle
               </Button>
               <Button variant="contained" 
               disableRipple
               sx={{
                 py: 1.5,
+                gap: 1,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
-                fontWeight: 'bold',
                 color: 'black',
                 background: '#BDD2B6', 
                 border: '3px solid black',
@@ -535,7 +534,7 @@ export default function Game() {
                 }, 
                 fontFamily: alfaSlabOne.style.fontFamily,
               }}>
-                {`Share your score with a friend!`}
+                Share <ShareIcon />
               </Button>
             </Stack>
           </Box>
