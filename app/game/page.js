@@ -1,13 +1,23 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
+import { SignedIn, SignedOut, SignOutButton } from '@clerk/nextjs';
 import { FaArrowCircleRight } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { BiSolidBarChartAlt2 } from "react-icons/bi";
-import { TextField, IconButton, InputAdornment, Modal } from '@mui/material';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import CloseIcon from '@mui/icons-material/Close';
+import { TextField, IconButton, InputAdornment, Modal, Button } from '@mui/material';
+import { Alfa_Slab_One } from "next/font/google";
+import useSound from 'use-sound';
+
+const alfaSlabOne = Alfa_Slab_One({
+  weight: '400', 
+  subsets: ['latin'], 
+  display: 'swap',
+});
 
 
 export default function Game() {
@@ -21,16 +31,17 @@ export default function Game() {
   const [guessedWords, setGuessedWords] = useState(Array(8).fill(''));  // Track which words have been guessed
   const [totalCluesUsed, setTotalCluesUsed] = useState(0);  // Track total number of clues used
   const [time, setTime] = useState(0);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [count, setCount] = useState(15);
   const [shake, setShake] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
 
-  const win = new Audio('/audio/win.mp3');
-  const lose = new Audio('/audio/lose.mp3');
-  const correct = new Audio('/audio/correct.mp3');
-  const incorrect = new Audio('/audio/incorrect.mp3');
+  const [win] = useSound('/audio/win.mp3');
+  const [lose] = useSound('/audio/lose.mp3');
+  const [correct] = useSound('/audio/correct.mp3');
+  const [incorrect] = useSound('/audio/incorrect.mp3');
 
   useEffect(() => {
     let timer;
@@ -109,12 +120,12 @@ export default function Game() {
         setCurrentClueIndex(0);
         setCurrentGuess('');
         if (!isGameOver) {
-          correct.play() // Play correct sound
+          correct() // Play correct sound
         }
       } else {
         setIsGameOver(true);
         setResult('You win!');
-        win.play() // Play win sound
+        win() // Play win sound
       }
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && count > 0) {
@@ -139,13 +150,13 @@ export default function Game() {
         }, 500);  // Shake duration (match CSS animation)
 
         if (!isGameOver) {
-          incorrect.play() // Play incorrect sound
+          incorrect() // Play incorrect sound
         }
         
       } else {
         setResult('You lose!');
         setIsGameOver(true);
-        lose.play() // Play lose sound
+        lose() // Play lose sound
       }
     }
     setCurrentGuess('');
@@ -157,13 +168,112 @@ export default function Game() {
     }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);  // Toggle sidebar visibility
+  };
+
   return (
     <div className={styles.container}>
 
       {/* Header Section with Title */}
       <div className={styles.header}>
-        <div className={styles.menu}> <FiMenu /> </div>
+        <div className={styles.menu}> <FiMenu onClick={toggleSidebar} /> </div>
         <h1 className={styles.title}>{count} or Less</h1>
+      </div>
+
+      {/* Sidebar */}
+      <div className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <Button onClick={toggleSidebar} sx={{ 
+            fontSize: '2rem',
+            color: 'black', 
+            "&:hover": { backgroundColor: 'transparent' },
+            }}
+            >
+              <CloseIcon />
+          </Button>
+          <h3>Menu</h3>
+        </div>
+        <div className={styles.sidebarContent}>
+          <div className={styles.content}>
+            <LeaderboardIcon sx={{
+              fontSize: '1.8rem',
+            }} />
+            Stats
+          </div>
+
+          <div className={styles.content}>
+            <HelpOutlineIcon sx={{
+              fontSize: '1.8rem',
+            }} />
+            Rules
+          </div>
+
+          <SignedOut>
+            <Button
+              className={styles.signButton}
+              href="/sign-in"
+              variant="contained" 
+              disableRipple
+              sx={{
+                mb: 3,
+                py: 1.5,
+                width: '80%',
+                fontSize: { xs: '16px', sm: '20px' },
+                color: 'black',
+                background: 'white', 
+                border: '3px solid black',
+                borderRadius: 1,
+                cursor: 'pointer',
+                textTransform: 'none',
+                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                '&:hover': {
+                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                '&:active': {
+                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                fontFamily: alfaSlabOne.style.fontFamily,
+              }}
+            >
+              Log In
+            </Button>
+            
+          </SignedOut>
+
+        <SignedIn>
+          <SignOutButton asChild>
+            <Button
+             className={styles.signButton}
+              variant="contained" 
+              disableRipple
+              sx={{
+                mb: 3,
+                py: 1.5,
+                width: '80%',
+                fontSize: { xs: '16px', sm: '20px' },
+                color: 'black',
+                background: 'white', 
+                border: '3px solid black',
+                borderRadius: 1,
+                cursor: 'pointer',
+                textTransform: 'none',
+                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                '&:hover': {
+                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                '&:active': {
+                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                fontFamily: alfaSlabOne.style.fontFamily,
+              }}
+            >
+              Sign Out
+            </Button>
+          </SignOutButton>
+        </SignedIn>
+
+        </div>
       </div>
 
       {/* Main content container */}
@@ -234,17 +344,13 @@ export default function Game() {
                 ),
               }}
             />
-            {/*{result && <p className={styles.result}>{result}</p>}*/}
-            {/*<button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>*/}
+
           </div>
           
 
         </div>
         
         <div className={styles.timerGuessContainer}>
-          {/* Timer */}
-          {/*<div className={styles.timer}>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>*/}
-
           {/* Clues Used Desktop */}
           <div className={styles.text}>Guesses Used:</div>
           <div className={styles.cluesGridContainer}>

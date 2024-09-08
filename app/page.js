@@ -60,7 +60,6 @@ export default function Home() {
           <Typography
             variant="h3"
             sx={{
-              fontWeight: 'bold', 
               fontFamily: alfaSlabOne.style.fontFamily,
               textAlign: 'center',
               fontSize: { xs: 'h4.fontSize', sm: 'h3.fontSize' },
@@ -91,9 +90,8 @@ export default function Home() {
               py: 1.5,
               width: '80%',
               fontSize: { xs: '16px', sm: '20px' },
-              fontWeight: 'bold',
-              color: 'white',
-              background: '#919D89', 
+              color: 'black',
+              background: '#BCD4B4', 
               border: '3px solid black',
               borderRadius: 1,
               cursor: 'pointer',
@@ -121,7 +119,6 @@ export default function Home() {
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
-                fontWeight: 'bold',
                 color: 'black',
                 background: 'white', 
                 border: '3px solid black',
@@ -143,7 +140,7 @@ export default function Home() {
             
           </SignedOut>
 
-          <SignedIn>
+        <SignedIn>
           <SignOutButton asChild>
             <Button
               variant="contained" 
@@ -153,7 +150,6 @@ export default function Home() {
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
-                fontWeight: 'bold',
                 color: 'black',
                 background: 'white', 
                 border: '3px solid black',
@@ -182,7 +178,6 @@ export default function Home() {
                 color: 'black', 
                 transform: 'scale(1.1)', 
               },
-              fontWeight: 'bold'
             } 
           }}>
             <HelpOutlineIcon style={{ fontSize: 40 }}/>
