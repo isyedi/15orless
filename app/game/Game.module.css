@@ -64,15 +64,38 @@
 }
 
 .sidebarHeader {
+  height: 6.05rem;
+  width: 100%;
   background: url('/bg-image.png');
   background-repeat: no-repeat;
   background-position: left center;
   border-bottom: 3px solid black;
-  padding: 1.8rem 0 1.8rem 1.5rem;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: flex-start;
+}
+
+.profile {
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 2rem;
+  border-top: 3px solid black;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.userButton {
+  padding-top: 8px;
+  font-size: 1.2rem;
+  width: 80%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
 }
 
 .sidebar.open {
@@ -100,11 +123,6 @@
 
 .content:hover {
   background-color: #C4C9C1;
-}
-
-.signButton {
-  position: absolute;
-  bottom: 0;
 }
 
 .mainContentContainer {
@@ -180,7 +198,7 @@
 }
 
 .underscoresContainer {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .underscore {
@@ -281,6 +299,10 @@
 }
 
 @media (min-width: 431px) {
+  .mainContentContainer {
+    margin-bottom: 8rem;
+  }
+
   .cluesCountdown {
     display: none;
   }
@@ -377,7 +399,7 @@
   }
 
   .sidebarHeader {
-    padding: 1.05rem 0 1.05rem 0;
+    height: 4.55rem;
   }
 
   .circleContainer {
@@ -403,7 +425,7 @@
   }
 
   .clue {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .button {
@@ -431,7 +453,7 @@
   }
 }
 
-@media(max-width: 520px) {
+@media(max-width: 540px) {
   .title {
     font-size: 1.5rem;
     padding-left: 32px;
@@ -467,7 +489,7 @@
   }
 
   .sidebarHeader {
-    padding: 0.79rem 0 0.79rem;
+    height: 4.03rem;
   }
 
   .mainContentContainer {
@@ -510,7 +532,7 @@
   .guessedBox {
     max-height: fit-content;
     max-width: 80px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     padding: 10px;
   }
   
@@ -541,7 +563,7 @@
 
 
 
-@media (max-width: 320px) {
+@media (max-width: 350px) {
   .mainContentContainer {
     flex-direction: column;
     height: auto; 
