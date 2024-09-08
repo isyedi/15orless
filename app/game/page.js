@@ -289,7 +289,7 @@ export default function Game() {
                 variant="contained" 
                 disableRipple
                 sx={{
-                  py: 1.5,
+                  py: 0.8,
                   width: '80%',
                   fontSize: { xs: '16px', sm: '20px' },
                   color: 'black',
@@ -319,7 +319,7 @@ export default function Game() {
                   variant="contained" 
                   disableRipple
                   sx={{
-                    py: 1.5,
+                    py: 0.8,
                     width: '80%',
                     fontSize: { xs: '16px', sm: '20px' },
                     color: 'black',
