@@ -156,7 +156,7 @@ export default function Game() {
           correct() // Play correct sound
         }
       } else {
-        setIsGameOver(true);
+        endGame()
         setResult('You win!');
         win() // Play win sound
       }
@@ -188,7 +188,7 @@ export default function Game() {
         
       } else {
         setResult('You lose!');
-        setIsGameOver(true);
+        endGame()
         lose() // Play lose sound
       }
     }
@@ -458,7 +458,7 @@ export default function Game() {
               {endGameTitle}
             </Typography>
             <Typography variant="h6" component="h2"sx={{ textAlign: 'center', pt: 2}} >
-              Next puzzle in ...
+              Check back in starting midnight for the next puzzle!
             </Typography>
 
             <Stack direction="row" spacing={25} sx = {{ pt: 10}}>
