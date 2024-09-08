@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect} from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
-import { SignedIn, SignedOut, SignOutButton } from '@clerk/nextjs';
+import { SignedIn, SignedOut, SignOutButton, UserButton, UserProfile } from '@clerk/nextjs';
 import { FaArrowCircleRight } from "react-icons/fa";
 
 import { Box, Typography, Stack} from "@mui/material";
@@ -237,7 +237,7 @@ export default function Game() {
 
       {/* Header Section with Title */}
       <div className={styles.header}>
-        <div className={styles.menu}> <FiMenu onClick={toggleSidebar} /> </div>
+        <div className={styles.menu} onClick={toggleSidebar}> <FiMenu /> </div>
         <h1 className={styles.title}>{count} or Less</h1>
       </div>
 
@@ -250,7 +250,7 @@ export default function Game() {
             "&:hover": { backgroundColor: 'transparent' },
             }}
             >
-              <CloseIcon />
+              <CloseIcon fontSize='20px' />
           </Button>
           <h3>Menu</h3>
         </div>
@@ -266,72 +266,82 @@ export default function Game() {
             <HelpOutlineIcon sx={{
               fontSize: '1.8rem',
             }} />
-            Rules
+            How to Play
           </div>
 
-          <SignedOut>
-            <Button
-              className={styles.signButton}
-              href="/sign-in"
-              variant="contained" 
-              disableRipple
-              sx={{
-                mb: 3,
-                py: 1.5,
-                width: '80%',
-                fontSize: { xs: '16px', sm: '20px' },
-                color: 'black',
-                background: 'white', 
-                border: '3px solid black',
-                borderRadius: 1,
-                cursor: 'pointer',
-                textTransform: 'none',
-                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-                '&:hover': {
-                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
-                }, 
-                '&:active': {
-                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-                }, 
-                fontFamily: alfaSlabOne.style.fontFamily,
-              }}
-            >
-              Log In
-            </Button>
-            
-          </SignedOut>
+          <div className={styles.profile}>
+            <span className={styles.userButton}>
+              Profile: <UserButton appearance={
+                {
+                  elements: {
+                    userButtonAvatarBox: {
+                      width: 45,
+                      height: 45,
+                    },
+                  }
+                }
+              } />
+            </span>
+            <SignedOut>
+              <Button
+                href="/sign-in"
+                variant="contained" 
+                disableRipple
+                sx={{
+                  py: 1.5,
+                  width: '80%',
+                  fontSize: { xs: '16px', sm: '20px' },
+                  color: 'black',
+                  background: '#C4C9C1', 
+                  border: '3px solid black',
+                  borderRadius: 1,
+                  cursor: 'pointer',
+                  textTransform: 'none',
+                  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                  '&:hover': {
+                    boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                  }, 
+                  '&:active': {
+                    boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                  }, 
+                  fontFamily: alfaSlabOne.style.fontFamily,
+                }}
+              >
+                Log In
+              </Button>
+              
+            </SignedOut>
 
-        <SignedIn>
-          <SignOutButton asChild>
-            <Button
-             className={styles.signButton}
-              variant="contained" 
-              disableRipple
-              sx={{
-                mb: 3,
-                py: 1.5,
-                width: '80%',
-                fontSize: { xs: '16px', sm: '20px' },
-                color: 'black',
-                background: 'white', 
-                border: '3px solid black',
-                borderRadius: 1,
-                cursor: 'pointer',
-                textTransform: 'none',
-                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-                '&:hover': {
-                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
-                }, 
-                '&:active': {
-                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-                }, 
-                fontFamily: alfaSlabOne.style.fontFamily,
-              }}
-            >
-              Sign Out
-            </Button>
-          </SignOutButton>
-        </SignedIn>
+            <SignedIn>
+              <SignOutButton asChild>
+                <Button
+                  variant="contained" 
+                  disableRipple
+                  sx={{
+                    py: 1.5,
+                    width: '80%',
+                    fontSize: { xs: '16px', sm: '20px' },
+                    color: 'black',
+                    background: '#C4C9C1', 
+                    border: '3px solid black',
+                    borderRadius: 1,
+                    cursor: 'pointer',
+                    textTransform: 'none',
+                    boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                    '&:hover': {
+                      boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                    }, 
+                    '&:active': {
+                      boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                    }, 
+                    fontFamily: alfaSlabOne.style.fontFamily,
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </SignOutButton>
+            </SignedIn>
+          </div>
 
         </div>
       </div>
