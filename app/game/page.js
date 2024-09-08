@@ -5,6 +5,12 @@ import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
 import { SignedIn, SignedOut, SignOutButton } from '@clerk/nextjs';
 import { FaArrowCircleRight } from "react-icons/fa";
+
+import { TextField, IconButton, InputAdornment, Modal } from '@mui/material';
+import { Box, Button, Typography, Stack} from "@mui/material";
+import { Alfa_Slab_One } from "next/font/google";
+import { useRouter } from 'next/navigation';
+
 import { FiMenu } from "react-icons/fi";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
@@ -19,7 +25,6 @@ const alfaSlabOne = Alfa_Slab_One({
   display: 'swap',
 });
 
-
 export default function Game() {
   const [clues, setClues] = useState([]);
   const [cluesUsed, setCluesUsed] = useState(Array(15).fill(false));
@@ -31,6 +36,10 @@ export default function Game() {
   const [guessedWords, setGuessedWords] = useState(Array(8).fill(''));  // Track which words have been guessed
   const [totalCluesUsed, setTotalCluesUsed] = useState(0);  // Track total number of clues used
   const [time, setTime] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [endGameTitle, setEndGameTitle] = useState('')
+  const [endGameGuesses, setEndGameGuesses] = useState('')
+  const router = useRouter(); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const [count, setCount] = useState(15);
@@ -57,6 +66,26 @@ export default function Game() {
     startGame();
   }, []);
 
+  useEffect(() => {
+    const circle = document.getElementById('circle');
+    const totalTicks = 8; // Number of ticks you want around the circle
+    const radius = circle.offsetWidth * 0.48; // Adjust based on your circle size
+
+    for (let i = 0; i < totalTicks; i++) {
+      const tick = document.createElement('div');
+      tick.classList.add(styles.tick);
+
+      // Calculate the angle for each tick
+      const angle = (360 / totalTicks) * i;
+
+      // Position each tick based on its angle
+      tick.style.transform = `rotate(${angle}deg) translate(${radius}px)`; // Moves ticks outward by the radius
+
+      // Append each tick to the circle
+      circle.appendChild(tick);
+    }
+  }, []);
+
   const startGame = async () => {
     const response = await axios.get('/api/start-game');
     setClues(response.data.clues);
@@ -68,10 +97,15 @@ export default function Game() {
     setGuessedWords(Array(8).fill(false));  // Reset guessed words for a new game
     setTotalCluesUsed(0);  // Reset total clues used for a new game
     setTime(0);  // Reset the timer for a new game
+    setActiveSegments(Array(8).fill(false));
+    setCluesUsed(Array(15).fill(false));
+    setEndGameTitle('')
+    setEndGameGuesses('')
     setActiveSegments(Array(8).fill(false));  // Reset circle segments
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
     setCount(15); // Reset clue countdown
   };
+
 
   const handleGuess = async () => {
     const currentWord = clues[currentWordIndex].word;
@@ -162,12 +196,39 @@ export default function Game() {
     setCurrentGuess('');
   };
 
+  const handleExit = () => {
+    router.push('/');
+  }
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isGameOver) {
       handleGuess();  // Trigger the handleGuess function when Enter is pressed
     }
   };
 
+
+  const endGame = async () => {
+    setIsGameOver(true)
+    setOpen(true)
+    
+    if (guessedWords.filter(Boolean).length == 8) {
+      setEndGameTitle('You got 15 or less!')
+      setEndGameGuesses(`All guesses used!`)
+    }
+    else{
+      setEndGameTitle('Thanks for playing!')
+      setEndGameGuesses(`${15 - totalCluesUsed} guesses left!`)
+    }
+
+
+  }
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setIsGameOver(false);
+    
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);  // Toggle sidebar visibility
   };
@@ -293,7 +354,7 @@ export default function Game() {
           </div>
 
         {/* Circle Ring */}
-        <div className={styles.circleContainer}>
+        <div className={styles.circleContainer} id = 'circle'>
           {Array.from({ length: 8 }).map((_, index) => (
             <div
               key={index}
@@ -357,16 +418,122 @@ export default function Game() {
             {Array.from({ length: 15 }).map((_, index) => (
               <div
                 key={index}
-                className={`${styles.clueBox} ${cluesUsed[index] ? styles.guessed : styles.blurred}`}
+                className={`${styles.clueBox} ${cluesUsed[index] ? styles.blurred : styles.guessed}`}
               >
                 {index + 1}
               </div>
             ))}
           </div>
-
           
+          <Button onClick={endGame}>Endgame</Button>
 
         </div>
+
+      {/* Endgame Modal Win*/}
+      <Modal
+        open={isGameOver}
+        onClose={handleClose}
+        aria-labelledby="how-to-play-title"
+        aria-describedby="how-to-play-description"
+        sx = {{ backgroundImage: "url('/bg-image.png')" }}
+       >
+          <Box
+            position="absolute"
+            top="50%"
+            left="50%"
+            width="90%"
+            height="90%"
+            maxWidth="1000px"
+            maxHeight="500px"
+            bgcolor="white"
+            boxShadow="5px 5px 0px 0px rgba(0, 0, 0, 1)"
+            p={3}
+            sx={{
+              transform: "translate(-50%, -50%)", 
+              border: "3px solid black",
+              outline: "none",
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="h2" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center' }}>
+              {endGameTitle}
+            </Typography>
+            <Typography variant="h6" component="h2"sx={{ textAlign: 'center', pt: 2}} >
+              Next puzzle in ...
+            </Typography>
+
+            <Stack direction="row" spacing={25} sx = {{ pt: 10}}>
+                <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                  {`${guessedWords.filter(Boolean).length} out of 8`} <br />  {`words correct!`}
+                  </Typography>
+                
+
+                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                    {endGameGuesses}
+                  </Typography>
+
+                  
+                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                    <span className={styles.timeEndGame}>Time: </span>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}
+                  </Typography>
+
+            </Stack>
+
+            <Stack direction = 'row' spacing = {2} sx = {{ pt: 10, pl: 25, pr: 25, textAlign: 'center', justifyContent: 'center'}}>
+              <Button variant="contained" onClick = {handleExit}
+                disableRipple
+              sx={{
+                py: 1.5,
+                width: '80%',
+                fontSize: { xs: '16px', sm: '20px' },
+                fontWeight: 'bold',
+                color: 'black',
+                background: 'white', 
+                border: '3px solid black',
+                borderRadius: 50,
+                cursor: 'pointer',
+                textTransform: 'none',
+                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                '&:hover': {
+                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                '&:active': {
+                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                fontFamily: alfaSlabOne.style.fontFamily,
+              }}>
+                Exit
+              </Button>
+              <Button variant="contained" 
+              disableRipple
+              sx={{
+                py: 1.5,
+                width: '80%',
+                fontSize: { xs: '16px', sm: '20px' },
+                fontWeight: 'bold',
+                color: 'black',
+                background: '#BDD2B6', 
+                border: '3px solid black',
+                borderRadius: 50,
+                cursor: 'pointer',
+                textTransform: 'none',
+                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                '&:hover': {
+                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                '&:active': {
+                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                fontFamily: alfaSlabOne.style.fontFamily,
+              }}>
+                {`Share your score with a friend!`}
+              </Button>
+            </Stack>
+          </Box>
+        </Modal>
+
+
+
       </div>
 
     </div>
