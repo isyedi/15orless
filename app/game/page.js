@@ -6,9 +6,7 @@ import styles from './Game.module.css';  // Import the CSS module
 import { SignedIn, SignedOut, SignOutButton } from '@clerk/nextjs';
 import { FaArrowCircleRight } from "react-icons/fa";
 
-import { TextField, IconButton, InputAdornment, Modal } from '@mui/material';
-import { Box, Button, Typography, Stack} from "@mui/material";
-import { Alfa_Slab_One } from "next/font/google";
+import { Box, Typography, Stack} from "@mui/material";
 import { useRouter } from 'next/navigation';
 
 import { FiMenu } from "react-icons/fi";
@@ -26,6 +24,7 @@ const alfaSlabOne = Alfa_Slab_One({
 });
 
 export default function Game() {
+  
   const [clues, setClues] = useState([]);
   const [cluesUsed, setCluesUsed] = useState(Array(15).fill(false));
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -220,7 +219,6 @@ export default function Game() {
       setEndGameGuesses(`${15 - totalCluesUsed} guesses left!`)
     }
 
-
   }
 
   const handleOpen = () => {
@@ -228,7 +226,8 @@ export default function Game() {
   };
   const handleClose = () => {
     setIsGameOver(false);
-    
+  }
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);  // Toggle sidebar visibility
   };
@@ -532,10 +531,7 @@ export default function Game() {
           </Box>
         </Modal>
 
-
-
-      </div>
-
+        </div>
     </div>
   );
 }
