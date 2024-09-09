@@ -16,6 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import { TextField, IconButton, InputAdornment, Modal, Button } from '@mui/material';
 import { Alfa_Slab_One } from "next/font/google";
 import useSound from 'use-sound';
+import { BorderTop } from '@mui/icons-material';
 
 const alfaSlabOne = Alfa_Slab_One({
   weight: '400', 
@@ -70,8 +71,8 @@ export default function Game() {
   const handleCloseCluesModal = () => setIsCluesModalOpen(false);
 
   const getCluesForDisplay = () => {
-    const usedClues = clues[currentWordIndex]?.clues.slice(0, currentClueIndex + 1) || [];
-    return [...usedClues, ...Array(5 - usedClues.length).fill('')];
+    return clues[currentWordIndex]?.clues.slice(0, currentClueIndex + 1) || [];
+    return usedClues.concat(Array(15 - usedClues.length).fill(''));
   };
 
 
@@ -476,7 +477,7 @@ export default function Game() {
               py: 0.8,
               my: 1,
               width: '30%',
-              fontSize: { xs: '8px', sm: '12px' },
+              fontSize: { xs: '8px', sm: '12px', md: '14px', lg: '16px' },
               color: 'black',
               background: '#C4C9C1', 
               border: '3px solid black',
@@ -492,7 +493,7 @@ export default function Game() {
               }, 
               fontFamily: alfaSlabOne.style.fontFamily,
             }}>
-              Show Clues
+              Clue Bank
             </Button>
             <Modal
               open={isCluesModalOpen}
@@ -503,7 +504,7 @@ export default function Game() {
               <Box 
               display="flex"
               flexDirection="column"
-              justifyContent="center"
+              justifyContent="flex-start"
               alignItems="center"
               sx={{ 
                 position: 'absolute', 
@@ -514,20 +515,26 @@ export default function Game() {
                 border: "3px solid black",
                 boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 1)',
                 borderRadius: 1,
-                p: 4, 
-                width: '300px',
-                maxWidth: '90%' 
+                width: '400px',
+                maxWidth: '90%',
+                height: '600px',
+                maxHeight: '90%', 
                 
               }}>
-                <Typography id="clue-modal-title" variant="h6" component="h2" gutterBottom sx={{fontFamily: alfaSlabOne.style.fontFamily}}>
-                  Clues So Far
-                </Typography>
+                <Box sx={{ p: 1.2,bgcolor: '#909D89', borderBottom: '4px solid black', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <Typography id="clue-modal-title" variant="h6" height='auto' sx={{fontFamily: alfaSlabOne.style.fontFamily}}>
+                    Clues:
+                  </Typography>
+                </Box>
 
-                <Grid container spacing={2}>
+                {/* TODO: make border bottom and grid to have more columns */}
+                <Grid container height='100%' overflow='scroll' pl={6} pr={6} pt={3} pb={3} gap={2} >
                   {getCluesForDisplay().map((clue, index) => (
-                    <Grid item xs={12} key={index}>
+                    <Grid item xs={12} key={index} >
+                      {clue && (
                       <Box sx={{ 
                         p: 1, 
+                        bgcolor: '#BCD4B4',
                         height: '50px',  
                         display: 'flex', 
                         justifyContent: 'center', 
@@ -541,36 +548,39 @@ export default function Game() {
                       }}>
                         {clue || ' '}
                       </Box>
+                      )}
                     </Grid>
                   ))}
                 </Grid>
 
-                <Button onClick={handleCloseCluesModal}
-                variant="contained" 
-                disableRipple
-                sx={{
-                  py: 0.8,
-                  mt: 3,
-                  width: '30%',
-                  fontSize: { xs: '8px', sm: '12px' },
-                  color: 'black',
-                  background: '#C4C9C1', 
-                  border: '3px solid black',
-                  borderRadius: 1,
-                  cursor: 'pointer',
-                  textTransform: 'none',
-                  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-                  '&:hover': {
-                    boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
-                  }, 
-                  '&:active': {
-                    boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-                  }, 
-                  fontFamily: alfaSlabOne.style.fontFamily,
+                <Box sx={{  width: '100%', borderTop: '4px solid black', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: '#909D89', p: 1.2 }}>
+                  <Button onClick={handleCloseCluesModal}
+                  variant="contained" 
+                  disableRipple
+                  sx={{
+                    py: 0.8,
+                    width: '80%',
+                    fontSize: { xs: '12px', sm: '14px', md: '16px' },
+                    color: 'black',
+                    background: '#C4C9C1', 
+                    border: '3px solid black',
+                    borderRadius: 1,
+                    cursor: 'pointer',
+                    textTransform: 'none',
+                    boxShadow: '3px 3px 0px 0px rgba(0, 0, 0, 1)',
+                    '&:hover': {
+                      boxShadow: '4.5px 4.5px 0px 0px rgba(0, 0, 0, 1)',
+                    }, 
+                    '&:active': {
+                      boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                    }, 
+                    fontFamily: alfaSlabOne.style.fontFamily,
 
-                }}>
-                  Close
-                </Button>
+                  }}>
+                    Close
+                  </Button>
+                </Box>
+
               </Box>
             </Modal>
 
