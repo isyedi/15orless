@@ -527,7 +527,6 @@ export default function Game() {
                   </Typography>
                 </Box>
 
-                {/* TODO: make border bottom and grid to have more columns */}
                 <Grid container height='100%' overflow='scroll' pl={6} pr={6} pt={3} pb={3} gap={2} >
                   {getCluesForDisplay().map((clue, index) => (
                     <Grid item xs={12} key={index} >
