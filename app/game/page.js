@@ -100,7 +100,7 @@ export default function Game() {
     setCurrentGuess('');
     setResult(null);
     setIsGameOver(false);
-    setGuessedWords(Array(8).fill(false));  // Reset guessed words for a new game
+    setGuessedWords(Array(8).fill(''));  // Reset guessed words for a new game
     setTotalCluesUsed(0);  // Reset total clues used for a new game
     setTime(0);  // Reset the timer for a new game
     setActiveSegments(Array(8).fill(false));
@@ -111,7 +111,7 @@ export default function Game() {
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
     setCount(15); // Reset clue countdown
     setUserId('1'); // Store user id 
-    setCurrentStreak(0)
+    setCurrentStreak(0) // make conditional if prev day wasn't played
     setLastDatePlayed('')
     setGamesWon(0)
     getUserData(userId)
@@ -165,6 +165,14 @@ export default function Game() {
   const handleGuess = async () => {
     const currentWord = clues[currentWordIndex].word;
 
+    setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
+
+    setCluesUsed((prev) => {
+      const updatedCluesUsed = [...prev];
+      updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
+      return updatedCluesUsed;
+    });
+  
     // decrement 15
     setCount((prev) => prev - 1);
     
@@ -178,7 +186,6 @@ export default function Game() {
     });
 
     if (guessResponse.data.result === 'correct') {
-      setResult('Correct');
       setShake(false);
       setIsError(false);
       setIsCorrect(true);
@@ -196,14 +203,7 @@ export default function Game() {
       newGuessedWords[currentWordIndex] = currentWord;  // Mark the word as guessed
       setGuessedWords(newGuessedWords);
 
-      setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
-
-        setCluesUsed((prev) => {
-          const updatedCluesUsed = [...prev];
-          updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
-          return updatedCluesUsed;
-        });
-
+      
       if (currentWordIndex < clues.length - 1) {
         setCurrentWordIndex(currentWordIndex + 1);
         setCurrentClueIndex(0);
@@ -212,23 +212,22 @@ export default function Game() {
           correct() // Play correct sound
         }
       } else {
-        endGame()
-        setResult('You win!');
-        handleOpen(true);
+        // User wins
+        setEndGameTitle('You got 15 or less!')
+        if ((14 - totalCluesUsed) === 0) {
+          setEndGameGuesses('Phew! All guesses used')
+        } else {
+          setEndGameGuesses(`${14 - totalCluesUsed} guesses remaining`)
+        }
+        setGamesWon((prevGamesWon) => prevGamesWon + 1)
         win() // Play win sound
+        endGame();
       }
     } else {
-      if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && count > 0) {
-        setCurrentClueIndex(currentClueIndex + 1);
-        setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
+      if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && totalCluesUsed < 14) {
+        setCurrentClueIndex(currentClueIndex + 1); // Indexes to next clue for word
+        
 
-        setCluesUsed((prev) => {
-          const updatedCluesUsed = [...prev];
-          updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
-          return updatedCluesUsed;
-        });
-
-        setResult('Incorrect');
         setIsError(true);
         setTimeout(() => {
           setIsError(false);
@@ -244,9 +243,11 @@ export default function Game() {
         }
         
       } else {
-        setResult('You lose!');
-        endGame()
+        // User loses
+        setEndGameTitle('Next time!')
+        setEndGameGuesses(`Ran out of guesses`)
         lose() // Play lose sound
+        endGame()
       }
     }
     setCurrentGuess('');
@@ -270,16 +271,6 @@ export default function Game() {
     // else {
 
     // }
-    
-    if (guessedWords.filter(Boolean).length == 8) {
-      setEndGameTitle('You got 15 or less!')
-      setEndGameGuesses(`All guesses used!`)
-      setGamesWon((prevGamesWon) => prevGamesWon + 1)
-    }
-    else{
-      setEndGameTitle('Thanks for playing!')
-      setEndGameGuesses(`${15 - totalCluesUsed} guesses left!`)
-    }
 
     updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
 
@@ -380,7 +371,7 @@ export default function Game() {
             </SignedOut>
 
             <SignedIn>
-              <SignOutButton asChild>
+              <SignOutButton>
                 <Button
                   variant="contained" 
                   disableRipple
@@ -418,7 +409,6 @@ export default function Game() {
 
         {/* Gray boxes for words */}
         <div className={styles.boxContainer}>
-          {/*<div className={styles.text}>Correct Words:</div>*/}
             {guessedWords.map((guessed, index) => (
               <div
                 key={index}
@@ -533,9 +523,6 @@ export default function Game() {
           >
             <Typography variant="h2" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center' }}>
               {endGameTitle}
-            </Typography>
-            <Typography variant="h6" component="h2"sx={{ textAlign: 'center', pt: 2}} >
-              Check back in starting midnight for the next puzzle!
             </Typography>
 
             <Stack direction="row" spacing={25} sx = {{ pt: 10, justifyContent: 'center'}}>

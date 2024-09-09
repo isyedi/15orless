@@ -1,7 +1,7 @@
 
 'use client'
 
-import { Box, Button, Modal, Typography } from "@mui/material";
+import { Box, Button, Modal, Typography, List, ListItem } from "@mui/material";
 import Head from "next/head";
 import Image from "next/image";
 import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton, SignOutButton } from '@clerk/nextjs'
@@ -141,7 +141,7 @@ export default function Home() {
           </SignedOut>
 
         <SignedIn>
-          <SignOutButton asChild>
+          <SignOutButton>
             <Button
               variant="contained" 
               disableRipple
@@ -197,7 +197,7 @@ export default function Home() {
           top="50%"
           left="50%"
           width="90%"
-          maxWidth="400px"
+          maxWidth="500px"
           bgcolor="white"
           boxShadow="5px 5px 0px 0px rgba(0, 0, 0, 1)"
           p={3}
@@ -208,11 +208,25 @@ export default function Home() {
             borderRadius: 1,
           }}
         >
-          <Typography id="how-to-play-title" variant="h6" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily }}>
+          <Typography id="how-to-play-title" variant="h5" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily }}>
             How to Play
           </Typography>
-          <Typography id="how-to-play-description" sx={{ mt: 2 }}>
-            Explain rules....
+
+          <Typography id="how-to-play-description" variant="h6" sx={{ mt: 1 }}>
+            Guess all <span style={{fontWeight: 'bold'}}>8 words</span> within <span style={{ fontWeight: 'bold' }}>15 tries or less</span>.
+          </Typography>
+          
+          <Typography sx={{ mt: 1, mb: 4, pl: 2 }}>
+            <ul>
+              <li>Each guess must be singular.</li>
+              <li>Every wrong guess will provide you with another clue.</li>
+              <li>Make connections with the clues given to you for your guesses.</li>
+            </ul>
+          </Typography>
+          
+
+          <Typography>
+            A new puzzle will be released daily after midnight.
           </Typography>
         </Box>
       </Modal>
