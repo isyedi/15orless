@@ -1,22 +1,30 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect} from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
-import { FaArrowCircleRight } from "react-icons/fa";
+import { SignedIn, SignedOut, SignOutButton, UserButton, UserProfile, useUser } from '@clerk/nextjs';
+import ShareIcon from '@mui/icons-material/Share';
+
+import { Box, Typography, Stack, List, ListItem, Grid, Paper} from "@mui/material";
+import { useRouter } from 'next/navigation';
+
 import { FiMenu } from "react-icons/fi";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
-import { BiSolidBarChartAlt2 } from "react-icons/bi";
-import { TextField, IconButton, InputAdornment, Modal, Box, Button, Menu, MenuItem } from '@mui/material';
-import { SignedOut, SignInButton, SignOutButton, UserButton, useUser } from '@clerk/clerk-react'; 
-import { fontWeight, Stack } from '@mui/system';
-import { SignedIn } from '@clerk/nextjs';
+import LeaderboardIcon from '@mui/icons-material/Leaderboard';
+import CloseIcon from '@mui/icons-material/Close';
+import { TextField, IconButton, InputAdornment, Modal, Button } from '@mui/material';
+import { Alfa_Slab_One } from "next/font/google";
+import useSound from 'use-sound';
 
-
-
-
+const alfaSlabOne = Alfa_Slab_One({
+  weight: '400', 
+  subsets: ['latin'], 
+  display: 'swap',
+});
 
 export default function Game() {
+  
   const [clues, setClues] = useState([]);
   const [cluesUsed, setCluesUsed] = useState(Array(15).fill(false));
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -27,6 +35,19 @@ export default function Game() {
   const [guessedWords, setGuessedWords] = useState(Array(8).fill(''));  // Track which words have been guessed
   const [totalCluesUsed, setTotalCluesUsed] = useState(0);  // Track total number of clues used
   const [time, setTime] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [endGameTitle, setEndGameTitle] = useState('')
+  const [endGameGuesses, setEndGameGuesses] = useState('')
+  const router = useRouter(); 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
+  
+  //userdata
+  const [userId, setUserId] = useState('');
+  const [gamesPlayed, setGamesPlayed] = useState(0);
+  const [gamesWon, setGamesWon] = useState(0);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [lastDatePlayed, setLastDatePlayed] = useState('');
 
   const [count, setCount] = useState(15);
   const [shake, setShake] = useState(false);
@@ -34,13 +55,27 @@ export default function Game() {
   const [isCorrect, setIsCorrect] = useState(false);
   
   const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+  
   const { isSignedIn } = useUser();
 
-  const win = new Audio('/audio/win.mp3');
-  const lose = new Audio('/audio/lose.mp3');
-  const correct = new Audio('/audio/correct.mp3');
-  const incorrect = new Audio('/audio/incorrect.mp3');
+  const [win] = useSound('/audio/win.mp3');
+  const [lose] = useSound('/audio/lose.mp3');
+  const [correct] = useSound('/audio/correct.mp3');
+  const [incorrect] = useSound('/audio/incorrect.mp3');
+
+  //modal clues used
+  const [isCluesModalOpen, setIsCluesModalOpen] = useState(false); // New state for clue modal
+
+  const handleOpenCluesModal = () => setIsCluesModalOpen(true);
+  const handleCloseCluesModal = () => setIsCluesModalOpen(false);
+
+  const getCluesForDisplay = () => {
+    const usedClues = clues[currentWordIndex]?.clues.slice(0, currentClueIndex + 1) || [];
+    return [...usedClues, ...Array(5 - usedClues.length).fill('')];
+  };
+
+
+
 
   useEffect(() => {
     let timer;
@@ -56,6 +91,26 @@ export default function Game() {
     startGame();
   }, []);
 
+  useEffect(() => {
+    const circle = document.getElementById('circle');
+    const totalTicks = 8; // Number of ticks you want around the circle
+    const radius = circle.offsetWidth * 0.48; // Adjust based on your circle size
+
+    for (let i = 0; i < totalTicks; i++) {
+      const tick = document.createElement('div');
+      tick.classList.add(styles.tick);
+
+      // Calculate the angle for each tick
+      const angle = (360 / totalTicks) * i;
+
+      // Position each tick based on its angle
+      tick.style.transform = `rotate(${angle}deg) translate(${radius}px)`; // Moves ticks outward by the radius
+
+      // Append each tick to the circle
+      circle.appendChild(tick);
+    }
+  }, []);
+
   const startGame = async () => {
     const response = await axios.get('/api/start-game');
     setClues(response.data.clues);
@@ -64,12 +119,66 @@ export default function Game() {
     setCurrentGuess('');
     setResult(null);
     setIsGameOver(false);
-    setGuessedWords(Array(8).fill(false));  // Reset guessed words for a new game
+    setGuessedWords(Array(8).fill(''));  // Reset guessed words for a new game
     setTotalCluesUsed(0);  // Reset total clues used for a new game
     setTime(0);  // Reset the timer for a new game
+    setActiveSegments(Array(8).fill(false));
+    setCluesUsed(Array(15).fill(false));
+    setEndGameTitle(''); // Set Endgame Title based on win or loss
+    setEndGameGuesses('');  // Set Endgame guesses based on win or loss
     setActiveSegments(Array(8).fill(false));  // Reset circle segments
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
     setCount(15); // Reset clue countdown
+    setUserId('1'); // Store user id 
+    setCurrentStreak(0) // make conditional if prev day wasn't played
+    setLastDatePlayed('')
+    setGamesWon(0)
+    getUserData(userId)
+  };
+
+  const getUserData = async (p) => {
+    try {
+      const response = await axios.get("/api/get-user-data", {
+        params: { p },
+      });
+
+      console.log(userData)// Store the retrieved data in state
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        return new Response(JSON.stringify({ error: error.response }), { status: 500 });
+      } else {
+        console.log("Error retrieving user data");
+      }
+    }
+  }
+
+  const updateUserData = async (userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed) => {
+    try {
+
+      const response = await axios.post('/api/handle-user-data', {
+        eventData: {
+          userId,
+          gamesPlayed,
+          gamesWon,
+          currentStreak,
+          lastDatePlayed,
+        },
+      });
+
+      return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error("Error submitting data:", error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response received:", error.request);
+      } else {
+        // Something else caused an error
+        console.error("Error:", error.message);
+      }
+    }
   };
 
   
@@ -77,14 +186,19 @@ export default function Game() {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
 
 
   const handleGuess = async () => {
     const currentWord = clues[currentWordIndex].word;
 
+    setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
+
+    setCluesUsed((prev) => {
+      const updatedCluesUsed = [...prev];
+      updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
+      return updatedCluesUsed;
+    });
+  
     // decrement 15
     setCount((prev) => prev - 1);
     
@@ -98,7 +212,6 @@ export default function Game() {
     });
 
     if (guessResponse.data.result === 'correct') {
-      setResult('Correct');
       setShake(false);
       setIsError(false);
       setIsCorrect(true);
@@ -116,38 +229,31 @@ export default function Game() {
       newGuessedWords[currentWordIndex] = currentWord;  // Mark the word as guessed
       setGuessedWords(newGuessedWords);
 
-      setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
-
-        setCluesUsed((prev) => {
-          const updatedCluesUsed = [...prev];
-          updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
-          return updatedCluesUsed;
-        });
-
+      
       if (currentWordIndex < clues.length - 1) {
         setCurrentWordIndex(currentWordIndex + 1);
         setCurrentClueIndex(0);
         setCurrentGuess('');
         if (!isGameOver) {
-          correct.play() // Play correct sound
+          correct() // Play correct sound
         }
       } else {
-        setIsGameOver(true);
-        setResult('You win!');
-        win.play() // Play win sound
+        // User wins
+        setEndGameTitle('You got 15 or less!')
+        if ((14 - totalCluesUsed) === 0) {
+          setEndGameGuesses('Phew! All guesses used')
+        } else {
+          setEndGameGuesses(`${14 - totalCluesUsed} guesses remaining`)
+        }
+        setGamesWon((prevGamesWon) => prevGamesWon + 1)
+        win() // Play win sound
+        endGame();
       }
     } else {
-      if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && count > 0) {
-        setCurrentClueIndex(currentClueIndex + 1);
-        setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
+      if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && totalCluesUsed < 14) {
+        setCurrentClueIndex(currentClueIndex + 1); // Indexes to next clue for word
+        
 
-        setCluesUsed((prev) => {
-          const updatedCluesUsed = [...prev];
-          updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
-          return updatedCluesUsed;
-        });
-
-        setResult('Incorrect');
         setIsError(true);
         setTimeout(() => {
           setIsError(false);
@@ -159,13 +265,15 @@ export default function Game() {
         }, 500);  // Shake duration (match CSS animation)
 
         if (!isGameOver) {
-          incorrect.play() // Play incorrect sound
+          incorrect() // Play incorrect sound
         }
         
       } else {
-        setResult('You lose!');
-        setIsGameOver(true);
-        lose.play() // Play lose sound
+        // User loses
+        setEndGameTitle('Next time!')
+        setEndGameGuesses(`Ran out of guesses`)
+        lose() // Play lose sound
+        endGame()
       }
     }
     setCurrentGuess('');
@@ -177,124 +285,159 @@ export default function Game() {
     }
   };
 
+
+  const endGame = async () => {
+    setIsGameOver(true)
+    setOpen(true)
+    setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
+
+    //validate for streak here
+    // if {
+    // }
+    // else {
+
+    // }
+
+    updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
+
+  }
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  }
+
+  const handleHelpOpen = () => { setIsHelpOpen(true) }
+  const handleHelpClose = () => { setIsHelpOpen(false) }
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);  // Toggle sidebar visibility
+  };
+
   return (
     
     <div className={styles.container}>
       {/* Header Section with Title */}
       <div className={styles.header}>
-      <div className={styles.menu}>
-        <FiMenu onClick={handleClick} style={{ cursor: 'pointer' }} /> 
-      </div>
+        <div className={styles.menu} onClick={toggleSidebar}> <FiMenu /> </div>
         <h1 className={styles.title}>{count} or Less</h1>
       </div>
 
-      
-      <Menu
-        
-        id="positioned-menu"
-        anchorEl={anchorEl}
-        open={open}  
-        onClose={handleClose}  
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'left',
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'left',
-        }}
-        style={{
-          marginLeft: '-10px',
-          marginTop: '20px',
-        }}
-        PaperProps={{
-          style: {
-            width: 200, 
-            height: 'auto', 
-            overflowY: 'auto', 
-            border: '3px solid black',
-            boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-            padding: '10px',
-          },
-        }}
-      >
-        
-      
-    <Stack direction="column" spacing={2}>
-      <SignedOut>
-        <Button
-          href="/sign-in"
-          disableRipple
-          sx={{
-            border: '3px solid black',
-            boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-            backgroundColor: 'white',
-            color: 'black',
-            fontWeight: "bold",
-            '&:hover': {
-              boxShadow: '5px 5px 0px 0px rgba(0, 0, 0, 1)',
-            }, 
-            '&:active': {
-              boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-            }, 
-          }}
-          >
-            Sign In
+      {/* Sidebar */}
+      <div className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <Button onClick={toggleSidebar} sx={{ 
+            fontSize: '2rem',
+            color: 'black', 
+            "&:hover": { backgroundColor: 'transparent' },
+            }}
+            >
+              <CloseIcon fontSize='20px' />
           </Button>
-          </SignedOut>
+          <h3>Menu</h3>
+        </div>
+        <div className={styles.sidebarContent}>
+          <div className={styles.content}>
+            <LeaderboardIcon sx={{
+              fontSize: '1.8rem',
+            }} />
+            Stats
+          </div>
 
-          <SignedIn>
-            <SignOutButton asChild>
+          <div className={styles.content} onClick={handleHelpOpen}>
+            <HelpOutlineIcon sx={{
+              fontSize: '1.8rem',
+            }} />
+            How to Play
+          </div>
+
+          <div className={styles.profile}>
+            <SignedIn>
+              <span className={styles.userButton}>
+                Profile: <UserButton appearance={
+                  {
+                    elements: {
+                      userButtonAvatarBox: {
+                        width: 45,
+                        height: 45,
+                      },
+                    }
+                  }
+                } />
+              </span>
+            </SignedIn>
+            <SignedOut>
               <Button
+                href="/sign-in"
+                variant="contained" 
                 disableRipple
                 sx={{
-                  border: '3px solid black',
-                  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-                  backgroundColor: 'white',
+                  mt: '1.5rem',
+                  py: 0.8,
+                  width: '80%',
+                  fontSize: { xs: '16px', sm: '20px' },
                   color: 'black',
-                  fontWeight: "bold",
+                  background: '#C4C9C1', 
+                  border: '3px solid black',
+                  borderRadius: 1,
+                  cursor: 'pointer',
+                  textTransform: 'none',
+                  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
                   '&:hover': {
-                    boxShadow: '5px 5px 0px 0px rgba(0, 0, 0, 1)',
+                    boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
                   }, 
                   '&:active': {
                     boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-                  }
-                }}>
-                  Sign Out
+                  }, 
+                  fontFamily: alfaSlabOne.style.fontFamily,
+                }}
+              >
+                Log In
               </Button>
-            </SignOutButton>
-          </SignedIn>
-          
-          <Button
-          disableRipple
-          sx={{
-            border: '3px solid black',
-            boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-            backgroundColor: 'white',
-            color: 'black',
-            fontWeight: 'bold',
-            '&:hover': {
-              boxShadow: '5px 5px 0px 0px rgba(0, 0, 0, 1)',
-            }, 
-            '&:active': {
-              boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-            }, 
-          }}>
-            How To Play
-          </Button>
-            
-      </Stack>
-        
-        
-      </Menu>
-      
+              
+            </SignedOut>
+
+            <SignedIn>
+              <SignOutButton>
+                <Button
+                  variant="contained" 
+                  disableRipple
+                  sx={{
+                    py: 0.8,
+                    width: '80%',
+                    fontSize: { xs: '16px', sm: '20px' },
+                    color: 'black',
+                    background: '#C4C9C1', 
+                    border: '3px solid black',
+                    borderRadius: 1,
+                    cursor: 'pointer',
+                    textTransform: 'none',
+                    boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                    '&:hover': {
+                      boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                    }, 
+                    '&:active': {
+                      boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                    }, 
+                    fontFamily: alfaSlabOne.style.fontFamily,
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </SignOutButton>
+            </SignedIn>
+          </div>
+
+        </div>
+      </div>
 
       {/* Main content container */}
       <div className={styles.mainContentContainer}>
 
         {/* Gray boxes for words */}
         <div className={styles.boxContainer}>
-          {/*<div className={styles.text}>Correct Words:</div>*/}
             {guessedWords.map((guessed, index) => (
               <div
                 key={index}
@@ -306,7 +449,7 @@ export default function Game() {
           </div>
 
         {/* Circle Ring */}
-        <div className={styles.circleContainer}>
+        <div className={styles.circleContainer} id = 'circle'>
           {Array.from({ length: 8 }).map((_, index) => (
             <div
               key={index}
@@ -323,6 +466,114 @@ export default function Game() {
             <div className={styles.clue}>
               {clues.length > 0 && clues[currentWordIndex]?.clues ? clues[currentWordIndex].clues[currentClueIndex] : 'Loading...'}
             </div>
+
+
+            {/* Clue Modal */}
+            <Button onClick={handleOpenCluesModal}
+            variant="contained" 
+            disableRipple
+            sx={{
+              py: 0.8,
+              my: 1,
+              width: '30%',
+              fontSize: { xs: '8px', sm: '12px' },
+              color: 'black',
+              background: '#C4C9C1', 
+              border: '3px solid black',
+              borderRadius: 1,
+              cursor: 'pointer',
+              textTransform: 'none',
+              boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+              '&:hover': {
+                boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+              }, 
+              '&:active': {
+                boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+              }, 
+              fontFamily: alfaSlabOne.style.fontFamily,
+            }}>
+              Show Clues
+            </Button>
+            <Modal
+              open={isCluesModalOpen}
+              onClose={handleCloseCluesModal}
+              aria-labelledby="clue-modal-title"
+              aria-describedby="clue-modal-description"
+            >
+              <Box 
+              display="flex"
+              flexDirection="column"
+              justifyContent="center"
+              alignItems="center"
+              sx={{ 
+                position: 'absolute', 
+                top: '50%', 
+                left: '50%', 
+                transform: 'translate(-50%, -50%)', 
+                bgcolor: 'background.paper', 
+                border: "3px solid black",
+                boxShadow: '2px 2px 2px 1px rgba(0, 0, 0, 1)',
+                borderRadius: 1,
+                p: 4, 
+                width: '300px',
+                maxWidth: '90%' 
+                
+              }}>
+                <Typography id="clue-modal-title" variant="h6" component="h2" gutterBottom sx={{fontFamily: alfaSlabOne.style.fontFamily}}>
+                  Clues So Far
+                </Typography>
+
+                <Grid container spacing={2}>
+                  {getCluesForDisplay().map((clue, index) => (
+                    <Grid item xs={12} key={index}>
+                      <Box sx={{ 
+                        p: 1, 
+                        height: '50px',  
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        alignItems: 'center', 
+                        border: `3px solid ${clue ? 'black' : '#999999'}`,
+                        boxShadow: clue 
+                          ? '2px 2px 2px 1px rgba(0, 0, 0, 1)' // Dark shadow if clue exists
+                          : '2px 2px 2px 1px rgba(153, 153, 153, 1)',
+                        borderRadius: 1,
+                        overflow: 'hidden' 
+                      }}>
+                        {clue || ' '}
+                      </Box>
+                    </Grid>
+                  ))}
+                </Grid>
+
+                <Button onClick={handleCloseCluesModal}
+                variant="contained" 
+                disableRipple
+                sx={{
+                  py: 0.8,
+                  mt: 3,
+                  width: '30%',
+                  fontSize: { xs: '8px', sm: '12px' },
+                  color: 'black',
+                  background: '#C4C9C1', 
+                  border: '3px solid black',
+                  borderRadius: 1,
+                  cursor: 'pointer',
+                  textTransform: 'none',
+                  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                  '&:hover': {
+                    boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                  }, 
+                  '&:active': {
+                    boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                  }, 
+                  fontFamily: alfaSlabOne.style.fontFamily,
+
+                }}>
+                  Close
+                </Button>
+              </Box>
+            </Modal>
+
 
             {/* Length of word */}
             <div className={styles.underscoresContainer}>
@@ -357,35 +608,217 @@ export default function Game() {
                 ),
               }}
             />
-            {/*{result && <p className={styles.result}>{result}</p>}*/}
-            {/*<button onClick={startGame} disabled={!isGameOver} className={styles.button}>Start New Game</button>*/}
+
           </div>
           
 
         </div>
         
         <div className={styles.timerGuessContainer}>
-          {/* Timer */}
-          {/*<div className={styles.timer}>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}</div>*/}
-
           {/* Clues Used Desktop */}
           <div className={styles.text}>Guesses Used:</div>
           <div className={styles.cluesGridContainer}>
             {Array.from({ length: 15 }).map((_, index) => (
               <div
                 key={index}
-                className={`${styles.clueBox} ${cluesUsed[index] ? styles.guessed : styles.blurred}`}
+                className={`${styles.clueBox} ${cluesUsed[index] ? styles.blurred : styles.guessed}`}
               >
                 {index + 1}
               </div>
             ))}
           </div>
-
           
+          <Button onClick={endGame}>Endgame</Button>
 
         </div>
-      </div>
 
+      {/* Endgame Modal Win */}
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="how-to-play-title"
+        aria-describedby="how-to-play-description"
+        sx = {{ backgroundImage: "url('/bg-image.png')" }}
+       >
+          <Box
+            position="absolute"
+            top="50%"
+            left="50%"
+            width="90%"
+            height="90%"
+            maxWidth="1000px"
+            maxHeight="600px"
+            bgcolor="white"
+            boxShadow="5px 5px 0px 0px rgba(0, 0, 0, 1)"
+            p={3}
+            sx={{
+              transform: "translate(-50%, -50%)", 
+              border: "3px solid black",
+              outline: "none",
+              borderRadius: 1,
+            }}
+          >
+            <Typography variant="h2" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center' }}>
+              {endGameTitle}
+            </Typography>
+
+            <Stack direction="row" spacing={25} sx = {{ pt: 10, justifyContent: 'center'}}>
+                <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                  {`${guessedWords.filter(Boolean).length} out of 8`} <br />  {`words correct!`}
+                  </Typography>
+                
+
+                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                    {endGameGuesses}
+                  </Typography>
+
+                  
+                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                    <span className={styles.timeEndGame}>Time: </span>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}
+                  </Typography>
+            </Stack>
+
+            <Stack direction="row" spacing={25} sx = {{ pt: 10, textAlign: 'center', justifyContent: 'center'}}>
+                <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                  All time stats
+                  </Typography>
+                
+
+                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                    win %
+                  </Typography>
+
+                  
+                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                    current streak
+                  </Typography>
+            </Stack>
+
+
+
+            <Stack direction = 'row' spacing = {2} sx = {{ pt: 8, pl: 25, pr: 25, textAlign: 'center', justifyContent: 'center'}}>
+              <Button variant="contained" onClick = {handleClose}
+                disableRipple
+              sx={{
+                py: 1.5,
+                width: '80%',
+                fontSize: { xs: '16px', sm: '20px' },
+                color: 'black',
+                background: 'white', 
+                border: '3px solid black',
+                borderRadius: 50,
+                cursor: 'pointer',
+                textTransform: 'none',
+                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                '&:hover': {
+                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                '&:active': {
+                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                fontFamily: alfaSlabOne.style.fontFamily,
+              }}>
+                Back to Puzzle
+              </Button>
+              <Button variant="contained" 
+              disableRipple
+              sx={{
+                py: 1.5,
+                gap: 1,
+                width: '80%',
+                fontSize: { xs: '16px', sm: '20px' },
+                color: 'black',
+                background: '#BDD2B6', 
+                border: '3px solid black',
+                borderRadius: 50,
+                cursor: 'pointer',
+                textTransform: 'none',
+                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                '&:hover': {
+                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                '&:active': {
+                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                }, 
+                fontFamily: alfaSlabOne.style.fontFamily,
+              }}>
+                Share <ShareIcon />
+              </Button>
+            </Stack>
+
+          </Box>
+        </Modal>
+        
+
+        <Modal
+          open={isHelpOpen}
+          onClose={handleHelpClose}
+          aria-labelledby="how-to-play-title"
+          aria-describedby="how-to-play-description"
+        >
+          <Box
+            position="absolute"
+            top="50%"
+            left="50%"
+            width="90%"
+            height="90%"
+            maxWidth="500px"
+            maxHeight="800px"
+            bgcolor="white"
+            boxShadow="5px 5px 0px 0px rgba(0, 0, 0, 1)"
+            p={3}
+            overflow={window.innerHeight < 800 ? 'scroll' : 'hidden'}
+            sx={{
+              transform: "translate(-50%, -50%)", 
+              border: "3px solid black",
+              outline: "none",
+              borderRadius: 1,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography id="how-to-play-title" variant="h5" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily }}>
+                How to Play
+              </Typography>
+              <Button onClick={handleHelpClose} color="black" sx={{ position: 'absolute', top: '16px', right: '0' }}>
+                <CloseIcon />
+              </Button>
+            </div>
+
+            <Typography id="how-to-play-description" variant="h6" sx={{ mt: 1 }}>
+              Guess all <span style={{fontWeight: 'bold'}}>8 words</span> within <span style={{ fontWeight: 'bold' }}>15 tries or less</span>.
+            </Typography>
+            
+            <Typography sx={{ mt: 1, mb: 1, pl: 4 }}>
+              <ul>
+                <li>Each guess must be singular.</li>
+                <li>Every wrong guess will provide you with another clue.</li>
+                <li>Make connections with the clues given to you for your guesses.</li>
+              </ul>
+            </Typography>
+            
+            <Typography sx={{ fontFamily: alfaSlabOne.style.fontFamily, mb: 1 }}>
+              Example:
+            </Typography>
+            <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', mb: 4}}>
+              <Box
+                component="img"
+                sx={{
+                  width: "100%",
+                  height: "auto",
+                  objectFit: "cover"
+                }}
+                alt="Circle component from Game"
+                src="/gameExample.gif"
+              />
+            </Box>
+
+            <Typography>
+              A new puzzle will be released daily after midnight.
+            </Typography>
+          </Box>
+        </Modal>
+
+        </div>
     </div>
   );
 }

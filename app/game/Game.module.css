@@ -5,6 +5,7 @@
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    user-select: none;
   }
   
 .header {
@@ -14,7 +15,7 @@
   background: url('/bg-image.png');
   background-repeat: no-repeat;
   background-position: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -26,7 +27,6 @@
   left: 50%;
   transform: translateX(-50%);
   font-size: 2.2rem;
-  font-weight: 1000;
   background-color: white;
   padding: 0.5rem;
   padding-left: 3.5rem;
@@ -36,7 +36,7 @@
   justify-content: center;
   align-items: center;
   border: 3px solid black;
-  box-shadow: 3px 3px 3px 3px black;
+  box-shadow: 2px 2px 2px 2px black;
 }
 
 .menu {
@@ -48,6 +48,81 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -250px; /* Hidden by default */
+  width: 250px;
+  height: 100%;
+  background-color: white;
+  border-right: 3px solid black;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+.sidebarHeader {
+  height: 6.05rem;
+  width: 100%;
+  background: url('/bg-image.png');
+  background-repeat: no-repeat;
+  background-position: left center;
+  border-bottom: 3px solid black;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.profile {
+  position: absolute;
+  bottom: 0;
+  margin-bottom: 2rem;
+  border-top: 3px solid black;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.userButton {
+  padding-top: 12px;
+  font-size: 1.2rem;
+  width: 80%;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.sidebar.open {
+  left: 0; /* Slide in when open */
+}
+
+.sidebarContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.content {
+  width: 100%;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.content:hover {
+  background-color: #C4C9C1;
 }
 
 .mainContentContainer {
@@ -123,7 +198,7 @@
 }
 
 .underscoresContainer {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .underscore {
@@ -152,7 +227,6 @@
 
 .clue {
   font-size: 3rem;
-  font-weight: bold;
 }
 
 .button {
@@ -196,7 +270,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-weight: bold;
   box-shadow: 2px 2px 2px 1px black;
 }
 
@@ -222,11 +295,14 @@
 
 .text {
   font-size: 1.5rem;
-  font-weight: 600;
   margin-bottom: 0.2rem;
 }
 
 @media (min-width: 431px) {
+  .mainContentContainer {
+    margin-bottom: 8rem;
+  }
+
   .cluesCountdown {
     display: none;
   }
@@ -319,6 +395,11 @@
   .title {
     font-size: 1.8rem;
     height: 50px;
+    box-shadow: 2px 2px 1px black;
+  }
+
+  .sidebarHeader {
+    height: 4.55rem;
   }
 
   .circleContainer {
@@ -344,7 +425,7 @@
   }
 
   .clue {
-    font-size: 2rem;
+    font-size: 2.5rem;
   }
 
   .button {
@@ -372,7 +453,7 @@
   }
 }
 
-@media(max-width: 520px) {
+@media(max-width: 540px) {
   .title {
     font-size: 1.5rem;
     padding-left: 32px;
@@ -407,6 +488,10 @@
     box-shadow: 2px 2px 1px black;
   }
 
+  .sidebarHeader {
+    height: 4.03rem;
+  }
+
   .mainContentContainer {
     flex-direction: column;
     height: auto; 
@@ -423,10 +508,6 @@
     margin-bottom: 12px;
   }
 
-  /*.circleSegment {
-    display: none;
-  }*/
-
   .textField {
     max-width: 170px; /* Adjust as needed for mobile */
   }
@@ -436,7 +517,7 @@
   }
 
   .underscore {
-    font-size: 1.8rem;
+    font-size: 1.2rem;
   }
 
   .boxContainer {
@@ -451,7 +532,7 @@
   .guessedBox {
     max-height: fit-content;
     max-width: 80px;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     padding: 10px;
   }
   
@@ -476,17 +557,20 @@
     border: 1px solid black;
     box-shadow: 1px 1px 1px 1px black;
     font-size: 2.5rem;
-    font-weight: 500;
   }
   
 }
 
 
 
-@media (max-width: 320px) {
+@media (max-width: 350px) {
   .mainContentContainer {
     flex-direction: column;
     height: auto; 
+  }
+
+  .title {
+    font-size: 1rem;
   }
 
   .textField {

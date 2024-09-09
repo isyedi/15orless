@@ -1,12 +1,13 @@
 
 'use client'
 
-import { Box, Button, Modal, Typography } from "@mui/material";
+import { Box, Button, Modal, Typography, List, ListItem } from "@mui/material";
 import Head from "next/head";
 import Image from "next/image";
 import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton, SignOutButton } from '@clerk/nextjs'
 import { Alfa_Slab_One } from "next/font/google";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import CloseIcon from '@mui/icons-material/Close';
 import { useState } from "react";
 
 const alfaSlabOne = Alfa_Slab_One({
@@ -60,7 +61,6 @@ export default function Home() {
           <Typography
             variant="h3"
             sx={{
-              fontWeight: 'bold', 
               fontFamily: alfaSlabOne.style.fontFamily,
               textAlign: 'center',
               fontSize: { xs: 'h4.fontSize', sm: 'h3.fontSize' },
@@ -91,9 +91,8 @@ export default function Home() {
               py: 1.5,
               width: '80%',
               fontSize: { xs: '16px', sm: '20px' },
-              fontWeight: 'bold',
-              color: 'white',
-              background: '#919D89', 
+              color: 'black',
+              background: '#BCD4B4', 
               border: '3px solid black',
               borderRadius: 1,
               cursor: 'pointer',
@@ -121,7 +120,6 @@ export default function Home() {
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
-                fontWeight: 'bold',
                 color: 'black',
                 background: 'white', 
                 border: '3px solid black',
@@ -143,8 +141,8 @@ export default function Home() {
             
           </SignedOut>
 
-          <SignedIn>
-          <SignOutButton asChild>
+        <SignedIn>
+          <SignOutButton>
             <Button
               variant="contained" 
               disableRipple
@@ -153,7 +151,6 @@ export default function Home() {
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
-                fontWeight: 'bold',
                 color: 'black',
                 background: 'white', 
                 border: '3px solid black',
@@ -182,7 +179,6 @@ export default function Home() {
                 color: 'black', 
                 transform: 'scale(1.1)', 
               },
-              fontWeight: 'bold'
             } 
           }}>
             <HelpOutlineIcon style={{ fontSize: 40 }}/>
@@ -202,10 +198,13 @@ export default function Home() {
           top="50%"
           left="50%"
           width="90%"
-          maxWidth="400px"
+          height="90%"
+          maxWidth="500px"
+          maxHeight="800px"
           bgcolor="white"
           boxShadow="5px 5px 0px 0px rgba(0, 0, 0, 1)"
           p={3}
+          overflow={window.innerHeight < 800 ? 'scroll' : 'hidden'}
           sx={{
             transform: "translate(-50%, -50%)", 
             border: "3px solid black",
@@ -213,11 +212,45 @@ export default function Home() {
             borderRadius: 1,
           }}
         >
-          <Typography id="how-to-play-title" variant="h6" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily }}>
-            How to Play
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography id="how-to-play-title" variant="h5" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily }}>
+              How to Play
+            </Typography>
+            <Button onClick={handleClose} color="black" sx={{ position: 'absolute', top: '16px', right: '0' }}>
+              <CloseIcon />
+            </Button>
+          </div>
+
+          <Typography id="how-to-play-description" variant="h6" sx={{ mt: 1 }}>
+            Guess all <span style={{fontWeight: 'bold'}}>8 words</span> within <span style={{ fontWeight: 'bold' }}>15 tries or less</span>.
           </Typography>
-          <Typography id="how-to-play-description" sx={{ mt: 2 }}>
-            Explain rules....
+          
+          <Typography sx={{ mt: 1, mb: 1, pl: 4 }}>
+            <ul>
+              <li>Each guess must be singular.</li>
+              <li>Every wrong guess will provide you with another clue.</li>
+              <li>Make connections with the clues given to you for your guesses.</li>
+            </ul>
+          </Typography>
+          
+          <Typography sx={{ fontFamily: alfaSlabOne.style.fontFamily, mb: 1 }}>
+            Example:
+          </Typography>
+          <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', mb: 4}}>
+            <Box
+              component="img"
+              sx={{
+                width: "100%",
+                height: "auto",
+                objectFit: "cover"
+              }}
+              alt="Circle component from Game"
+              src="/gameExample.gif"
+            />
+          </Box>
+
+          <Typography>
+            A new puzzle will be released daily after midnight.
           </Typography>
         </Box>
       </Modal>
