@@ -40,6 +40,7 @@ export default function Game() {
   const [endGameGuesses, setEndGameGuesses] = useState('')
   const router = useRouter(); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   
   //userdata
   const [userId, setUserId] = useState('');
@@ -283,6 +284,9 @@ export default function Game() {
     setOpen(false);
   }
 
+  const handleHelpOpen = () => { setIsHelpOpen(true) }
+  const handleHelpClose = () => { setIsHelpOpen(false) }
+
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);  // Toggle sidebar visibility
   };
@@ -317,7 +321,7 @@ export default function Game() {
             Stats
           </div>
 
-          <div className={styles.content}>
+          <div className={styles.content} onClick={handleHelpOpen}>
             <HelpOutlineIcon sx={{
               fontSize: '1.8rem',
             }} />
@@ -609,6 +613,74 @@ export default function Game() {
               </Button>
             </Stack>
 
+          </Box>
+        </Modal>
+
+        <Modal
+          open={isHelpOpen}
+          onClose={handleHelpClose}
+          aria-labelledby="how-to-play-title"
+          aria-describedby="how-to-play-description"
+        >
+          <Box
+            position="absolute"
+            top="50%"
+            left="50%"
+            width="90%"
+            height="90%"
+            maxWidth="500px"
+            maxHeight="800px"
+            bgcolor="white"
+            boxShadow="5px 5px 0px 0px rgba(0, 0, 0, 1)"
+            p={3}
+            overflow={window.innerHeight < 800 ? 'scroll' : 'hidden'}
+            sx={{
+              transform: "translate(-50%, -50%)", 
+              border: "3px solid black",
+              outline: "none",
+              borderRadius: 1,
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography id="how-to-play-title" variant="h5" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily }}>
+                How to Play
+              </Typography>
+              <Button onClick={handleHelpClose} color="black" sx={{ position: 'absolute', top: '16px', right: '0' }}>
+                <CloseIcon />
+              </Button>
+            </div>
+
+            <Typography id="how-to-play-description" variant="h6" sx={{ mt: 1 }}>
+              Guess all <span style={{fontWeight: 'bold'}}>8 words</span> within <span style={{ fontWeight: 'bold' }}>15 tries or less</span>.
+            </Typography>
+            
+            <Typography sx={{ mt: 1, mb: 1, pl: 4 }}>
+              <ul>
+                <li>Each guess must be singular.</li>
+                <li>Every wrong guess will provide you with another clue.</li>
+                <li>Make connections with the clues given to you for your guesses.</li>
+              </ul>
+            </Typography>
+            
+            <Typography sx={{ fontFamily: alfaSlabOne.style.fontFamily, mb: 1 }}>
+              Example:
+            </Typography>
+            <Box sx={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', mb: 4}}>
+              <Box
+                component="img"
+                sx={{
+                  width: "100%",
+                  height: "auto",
+                  objectFit: "cover"
+                }}
+                alt="Circle component from Game"
+                src="/gameExample.gif"
+              />
+            </Box>
+
+            <Typography>
+              A new puzzle will be released daily after midnight.
+            </Typography>
           </Box>
         </Modal>
 
