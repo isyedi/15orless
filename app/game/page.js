@@ -517,8 +517,8 @@ export default function Game() {
                 borderRadius: 1,
                 width: '400px',
                 maxWidth: '90%',
-                height: '600px',
-                maxHeight: '90%', 
+                height: '500px',
+
                 
               }}>
                 <Box sx={{ p: 1.2,bgcolor: '#909D89', borderBottom: '4px solid black', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -527,7 +527,8 @@ export default function Game() {
                   </Typography>
                 </Box>
 
-                <Grid container height='auto' overflow='scroll' pl={6} pr={6} pt={3} pb={3} gap={2} >
+                <Box overflow='scroll' width='100%' height='100%' sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', alignItems: 'center' }}>
+                <Grid container pl={6} pr={6} pt={3} pb={3} gap={2} >
                   {getCluesForDisplay().map((clue, index) => (
                     <Grid item xs={12} key={index} >
                       {clue && (
@@ -551,6 +552,7 @@ export default function Game() {
                     </Grid>
                   ))}
                 </Grid>
+                </Box>
 
                 <Box sx={{ width: '100%', borderTop: '4px solid black', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: '#909D89', p: 1.2 }}>
                   <Button onClick={handleCloseCluesModal}
