@@ -252,10 +252,6 @@ export default function Game() {
     setCurrentGuess('');
   };
 
-  const handleExit = () => {////////////////////////////////////////////////
-    router.push('/game');
-  }
-
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !isGameOver) {
       handleGuess();  // Trigger the handleGuess function when Enter is pressed
@@ -338,24 +334,27 @@ export default function Game() {
           </div>
 
           <div className={styles.profile}>
-            <span className={styles.userButton}>
-              Profile: <UserButton appearance={
-                {
-                  elements: {
-                    userButtonAvatarBox: {
-                      width: 45,
-                      height: 45,
-                    },
+            <SignedIn>
+              <span className={styles.userButton}>
+                Profile: <UserButton appearance={
+                  {
+                    elements: {
+                      userButtonAvatarBox: {
+                        width: 45,
+                        height: 45,
+                      },
+                    }
                   }
-                }
-              } />
-            </span>
+                } />
+              </span>
+            </SignedIn>
             <SignedOut>
               <Button
                 href="/sign-in"
                 variant="contained" 
                 disableRipple
                 sx={{
+                  mt: '1.5rem',
                   py: 0.8,
                   width: '80%',
                   fontSize: { xs: '16px', sm: '20px' },
