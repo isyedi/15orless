@@ -504,7 +504,7 @@ export default function Game() {
               <Box 
               display="flex"
               flexDirection="column"
-              justifyContent="flex-start"
+              justifyContent="space-between"
               alignItems="center"
               sx={{ 
                 position: 'absolute', 
@@ -527,7 +527,7 @@ export default function Game() {
                   </Typography>
                 </Box>
 
-                <Grid container height='100%' overflow='scroll' pl={6} pr={6} pt={3} pb={3} gap={2} >
+                <Grid container height='auto' overflow='scroll' pl={6} pr={6} pt={3} pb={3} gap={2} >
                   {getCluesForDisplay().map((clue, index) => (
                     <Grid item xs={12} key={index} >
                       {clue && (
@@ -552,7 +552,7 @@ export default function Game() {
                   ))}
                 </Grid>
 
-                <Box sx={{  width: '100%', borderTop: '4px solid black', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: '#909D89', p: 1.2 }}>
+                <Box sx={{ width: '100%', borderTop: '4px solid black', display: 'flex', justifyContent: 'center', alignItems: 'center', bgcolor: '#909D89', p: 1.2 }}>
                   <Button onClick={handleCloseCluesModal}
                   variant="contained" 
                   disableRipple
