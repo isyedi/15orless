@@ -72,7 +72,6 @@ export default function Game() {
 
   const getCluesForDisplay = () => {
     return clues[currentWordIndex]?.clues.slice(0, currentClueIndex + 1) || [];
-    return usedClues.concat(Array(15 - usedClues.length).fill(''));
   };
 
 
@@ -105,6 +104,8 @@ export default function Game() {
       const angle = (360 / totalTicks) * i;
 
       // Position each tick based on its angle
+      tick.style.position = 'absolute'; // Make sure ticks are positioned relative to the circle
+      tick.style.transformOrigin = '0 0'; // Set the transform origin for correct positioning
       tick.style.transform = `rotate(${angle}deg) translate(${radius}px)`; // Moves ticks outward by the radius
 
       // Append each tick to the circle
@@ -458,7 +459,7 @@ export default function Game() {
           </div>
 
         {/* Circle Ring */}
-        <div className={styles.circleContainer} id = 'circle'>
+        <div className={styles.circleContainer} id='circle'>
           {Array.from({ length: 8 }).map((_, index) => (
             <div
               key={index}

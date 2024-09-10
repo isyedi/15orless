@@ -139,6 +139,13 @@
   border-radius: 50%;
 }
 
+/* .tick {
+  width: 2px;
+  height: 10px;
+  background-color: black;
+  position: absolute;
+} */
+
 .circleSegment {
   position: absolute;
   width: 100%;
