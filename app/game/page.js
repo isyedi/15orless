@@ -75,7 +75,6 @@ export default function Game() {
 
   const getCluesForDisplay = () => {
     return clues[currentWordIndex]?.clues.slice(0, currentClueIndex + 1) || [];
-    //return usedClues.concat(Array(15 - usedClues.length).fill(''));
   };
 
   useEffect(() => {
@@ -108,6 +107,8 @@ export default function Game() {
       const angle = (360 / totalTicks) * i;
 
       // Position each tick based on its angle
+      tick.style.position = 'absolute'; // Make sure ticks are positioned relative to the circle
+      tick.style.transformOrigin = '0 0'; // Set the transform origin for correct positioning
       tick.style.transform = `rotate(${angle}deg) translate(${radius}px)`; // Moves ticks outward by the radius
 
       // Append each tick to the circle
@@ -224,7 +225,7 @@ export default function Game() {
       updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
       return updatedCluesUsed;
     });
-  
+
     // decrement 15
     setCount((prev) => prev - 1);
     
@@ -255,12 +256,20 @@ export default function Game() {
       newGuessedWords[currentWordIndex] = currentWord;  // Mark the word as guessed
       setGuessedWords(newGuessedWords);
 
+      // Checks if last guess is correct but user still loses
+      if (totalCluesUsed >= 14) {
+        setEndGameTitle('Next Time!')
+        setEndGameGuesses('Ran out of guesses')
+        lose() // Play lose sound
+        endGame();
+      }
+
       
       if (currentWordIndex < clues.length - 1) {
         setCurrentWordIndex(currentWordIndex + 1);
         setCurrentClueIndex(0);
         setCurrentGuess('');
-        if (!isGameOver) {
+        if (!isGameOver && totalCluesUsed < 14) {
           correct() // Play correct sound
         }
       } else {
@@ -276,7 +285,7 @@ export default function Game() {
         endGame(true);
       }
     } else {
-      if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && totalCluesUsed < 14) {
+      if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
         setCurrentClueIndex(currentClueIndex + 1); // Indexes to next clue for word
         
 
@@ -488,7 +497,7 @@ export default function Game() {
           </div>
 
         {/* Circle Ring */}
-        <div className={styles.circleContainer} id = 'circle'>
+        <div className={styles.circleContainer} id='circle'>
           {Array.from({ length: 8 }).map((_, index) => (
             <div
               key={index}
@@ -638,6 +647,7 @@ export default function Game() {
             </div>
 
 
+            {/* TODO: make it to where user needs to have some input and reveal all words if user loses */}
             <TextField
               className={`${styles.textField} ${shake ? styles.shake : ''}`}
               error={isError} // Set error state for incorrect guesses
@@ -798,7 +808,7 @@ export default function Game() {
           </Box>
         </Modal>
         
-
+        {/* How to Play Modal */}
         <Modal
           open={isHelpOpen}
           onClose={handleHelpClose}
