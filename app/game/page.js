@@ -770,7 +770,7 @@ export default function Game() {
           </Box>
         </Modal>
         
-
+        {/* How to Play Modal */}
         <Modal
           open={isHelpOpen}
           onClose={handleHelpClose}
