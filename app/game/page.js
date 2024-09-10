@@ -199,7 +199,7 @@ export default function Game() {
       updatedCluesUsed[totalCluesUsed] = true;  // Mark the clue as used
       return updatedCluesUsed;
     });
-  
+
     // decrement 15
     setCount((prev) => prev - 1);
     
@@ -230,12 +230,20 @@ export default function Game() {
       newGuessedWords[currentWordIndex] = currentWord;  // Mark the word as guessed
       setGuessedWords(newGuessedWords);
 
+      // Checks if last guess is correct but user still loses
+      if (totalCluesUsed >= 14) {
+        setEndGameTitle('Next Time!')
+        setEndGameGuesses('Ran out of guesses')
+        lose() // Play lose sound
+        endGame();
+      }
+
       
       if (currentWordIndex < clues.length - 1) {
         setCurrentWordIndex(currentWordIndex + 1);
         setCurrentClueIndex(0);
         setCurrentGuess('');
-        if (!isGameOver) {
+        if (!isGameOver && totalCluesUsed < 14) {
           correct() // Play correct sound
         }
       } else {
@@ -251,7 +259,7 @@ export default function Game() {
         endGame();
       }
     } else {
-      if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && totalCluesUsed < 14) {
+      if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
         setCurrentClueIndex(currentClueIndex + 1); // Indexes to next clue for word
         
 
@@ -600,6 +608,7 @@ export default function Game() {
             </div>
 
 
+            {/* TODO: make it to where user needs to have some input and reveal all words if user loses */}
             <TextField
               className={`${styles.textField} ${shake ? styles.shake : ''}`}
               error={isError} // Set error state for incorrect guesses
