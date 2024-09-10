@@ -1,22 +1,15 @@
 
 import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
-import { PanoramaFishEye } from "@mui/icons-material";
 
-export async function GET(req) {
+export async function GET(request) {
     try {
-      // Reference to the user's document in the "userStats" collection, where userId is the key
-      console.log(req.query())
-      const userRef = doc(db, "userStats", params);
-      const docSnap = await getDoc(userRef);
+      // Retrieve user data to update the frontend stats
+      const userId = request.nextUrl.searchParams.get("user");
+      const docRef = doc(db, 'userStats', userId)
+      const snapshot = await getDoc(docRef)
 
-      const userData = []
-      docSnap.forEach((x) => {
-        userData.push(x.data())
-      });
-
-
-      return new Response(JSON.stringify({ data: "Successfully retrieved user data: " + userData}), { status: 200 });
+      return new Response(JSON.stringify({ success: true, data: snapshot.data() }), { status: 200 });
 
     } catch (error) {
       console.error("Error retrieving user data: ", error);

@@ -4,6 +4,7 @@ import { useState, useEffect} from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
 import { SignedIn, SignedOut, SignOutButton, UserButton, UserProfile, useUser } from '@clerk/nextjs';
+import { useAuth } from '@clerk/clerk-react'
 import ShareIcon from '@mui/icons-material/Share';
 
 import { Box, Typography, Stack, List, ListItem, Grid, Paper} from "@mui/material";
@@ -44,11 +45,13 @@ export default function Game() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   
   //userdata
-  const [userId, setUserId] = useState('');
+  const { userId } = useAuth()
+  //const [user, setUser] = useState('');
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [gamesWon, setGamesWon] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [lastDatePlayed, setLastDatePlayed] = useState('');
+  const date = new Date()
 
   const [count, setCount] = useState(15);
   const [shake, setShake] = useState(false);
@@ -57,7 +60,7 @@ export default function Game() {
   
   const [anchorEl, setAnchorEl] = useState(null);
   
-  const { isSignedIn } = useUser();
+  //const { isSignedIn } = useUser();
 
   const [win] = useSound('/audio/win.mp3');
   const [lose] = useSound('/audio/lose.mp3');
@@ -74,9 +77,6 @@ export default function Game() {
     return clues[currentWordIndex]?.clues.slice(0, currentClueIndex + 1) || [];
   };
 
-
-
-
   useEffect(() => {
     let timer;
     if (!isGameOver) {
@@ -89,6 +89,9 @@ export default function Game() {
 
   useEffect(() => {
     startGame();
+    createUserData(userId)
+    getUserData(userId)
+    console.log(userId)
   }, []);
 
   useEffect(() => {
@@ -130,21 +133,25 @@ export default function Game() {
     setEndGameGuesses('');  // Set Endgame guesses based on win or loss
     setActiveSegments(Array(8).fill(false));  // Reset circle segments
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
-    setCount(15); // Reset clue countdown
-    setUserId('1'); // Store user id 
-    setCurrentStreak(0) // make conditional if prev day wasn't played
-    setLastDatePlayed('')
-    setGamesWon(0)
-    getUserData(userId)
+    setCount(15); // Reset clue countdown 
+    setLastDatePlayed(date)
   };
 
-  const getUserData = async (p) => {
+  const getUserData = async (u) => {
     try {
       const response = await axios.get("/api/get-user-data", {
-        params: { p },
+        params: {
+          user: u
+        }
       });
 
-      console.log(userData)// Store the retrieved data in state
+      const responseData = response.data.data
+
+      setCurrentStreak(responseData.currentStreak)
+      setLastDatePlayed(responseData.lastDatePlayed)
+      setGamesPlayed(responseData.gamesPlayed)
+      setGamesWon(responseData.gamesWon)
+      
     } catch (error) {
       if (error.response) {
         // Server responded with a status other than 2xx
@@ -155,17 +162,36 @@ export default function Game() {
     }
   }
 
+  const createUserData = async (userId) => {
+    try {
+      const response = await axios.post('/api/create-user-data', {
+        user: userId,
+      });
+
+      return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error("Error submitting data:", error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response received:", error.request);
+      } else {
+        // Something else caused an error
+        console.error("Error:", error.message);
+      }
+    }
+  };
+
   const updateUserData = async (userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed) => {
     try {
 
-      const response = await axios.post('/api/handle-user-data', {
-        eventData: {
+      const response = await axios.post('/api/update-user-data', {
           userId,
           gamesPlayed,
           gamesWon,
           currentStreak,
           lastDatePlayed,
-        },
       });
 
       return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
@@ -187,7 +213,6 @@ export default function Game() {
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
 
 
   const handleGuess = async () => {
@@ -255,9 +280,9 @@ export default function Game() {
         } else {
           setEndGameGuesses(`${14 - totalCluesUsed} guesses remaining`)
         }
-        setGamesWon((prevGamesWon) => prevGamesWon + 1)
+        
         win() // Play win sound
-        endGame();
+        endGame(true);
       }
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
@@ -287,6 +312,7 @@ export default function Game() {
       }
     }
     setCurrentGuess('');
+
   };
 
   const handleKeyPress = (e) => {
@@ -296,10 +322,20 @@ export default function Game() {
   };
 
 
-  const endGame = async () => {
+  const endGame = async (isWon = false) => {
     setIsGameOver(true)
     setOpen(true)
     setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
+    
+    if (isWon == true) {
+      setGamesWon((prevGamesWon) => prevGamesWon + 1)
+    }
+
+    // calculate win ratio
+
+    //update last date played
+    console.log(lastDatePlayed)
+
 
     //validate for streak here
     // if {
@@ -308,8 +344,10 @@ export default function Game() {
 
     // }
 
-    updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
+  }
 
+  if (isGameOver) {
+    updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
   }
 
   const handleOpen = () => {
