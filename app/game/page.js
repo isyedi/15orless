@@ -43,6 +43,7 @@ export default function Game() {
   const router = useRouter(); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [numCorrect, setNumCorrect] = useState(0);
   
   //userdata
   const { userId } = useAuth()
@@ -134,6 +135,7 @@ export default function Game() {
     setActiveSegments(Array(8).fill(false));  // Reset circle segments
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
     setCount(15); // Reset clue countdown 
+    setNumCorrect(0);
     setLastDatePlayed(date)
   };
 
@@ -242,6 +244,7 @@ export default function Game() {
       setShake(false);
       setIsError(false);
       setIsCorrect(true);
+      setNumCorrect((prev) => prev + 1)
 
       setTimeout(() => {
         setIsCorrect(false);
@@ -256,8 +259,13 @@ export default function Game() {
       newGuessedWords[currentWordIndex] = currentWord;  // Mark the word as guessed
       setGuessedWords(newGuessedWords);
 
-      // Checks if last guess is correct but user still loses
-      if (totalCluesUsed >= 14) {
+      if (totalCluesUsed >= 14 && numCorrect >= 7) {
+        setEndGameTitle('You got 15 or less!')
+        setEndGameGuesses('Phew! All guesses used')
+        win() // Play win sound
+        endGame();
+      } else if (totalCluesUsed >= 14 && numCorrect < 7) {
+        // Checks if last guess is correct but user still loses
         setEndGameTitle('Next Time!')
         setEndGameGuesses('Ran out of guesses')
         lose() // Play lose sound
@@ -287,8 +295,14 @@ export default function Game() {
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
         setCurrentClueIndex(currentClueIndex + 1); // Indexes to next clue for word
-        
 
+        if (totalCluesUsed >= 14 && numCorrect >= 7) {
+          setEndGameTitle('Next time!')
+          setEndGameGuesses(`Ran out of guesses`)
+          lose() // Play win sound
+          endGame();
+        }
+        
         setIsError(true);
         setTimeout(() => {
           setIsError(false);
