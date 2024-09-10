@@ -9,14 +9,6 @@ export async function GET(request) {
       const docRef = doc(db, 'userStats', userId)
       const snapshot = await getDoc(docRef)
 
-      //console.log(snapshot.data())
-      // if (snapshot.exists()) {
-      //   userData.push(snapshot.data())
-      // }
-      // else{
-      //   console.log('user data does not exist!')
-      // }
-
       return new Response(JSON.stringify({ success: true, data: snapshot.data() }), { status: 200 });
 
     } catch (error) {

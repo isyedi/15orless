@@ -4,6 +4,7 @@ import { useState, useEffect} from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
 import { SignedIn, SignedOut, SignOutButton, UserButton, UserProfile, useUser } from '@clerk/nextjs';
+import { useAuth } from '@clerk/clerk-react'
 import ShareIcon from '@mui/icons-material/Share';
 
 import { Box, Typography, Stack, List, ListItem, Grid, Paper} from "@mui/material";
@@ -44,11 +45,13 @@ export default function Game() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   
   //userdata
-  const [userId, setUserId] = useState('irfan@gmail.com');
+  const { userId } = useAuth()
+  //const [user, setUser] = useState('');
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [gamesWon, setGamesWon] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [lastDatePlayed, setLastDatePlayed] = useState('');
+  const date = new Date()
 
   const [count, setCount] = useState(15);
   const [shake, setShake] = useState(false);
@@ -72,9 +75,8 @@ export default function Game() {
 
   const getCluesForDisplay = () => {
     return clues[currentWordIndex]?.clues.slice(0, currentClueIndex + 1) || [];
-    return usedClues.concat(Array(15 - usedClues.length).fill(''));
+    //return usedClues.concat(Array(15 - usedClues.length).fill(''));
   };
-
 
   useEffect(() => {
     let timer;
@@ -90,6 +92,7 @@ export default function Game() {
     startGame();
     createUserData(userId)
     getUserData(userId)
+    console.log(userId)
   }, []);
 
   useEffect(() => {
@@ -130,6 +133,7 @@ export default function Game() {
     setActiveSegments(Array(8).fill(false));  // Reset circle segments
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
     setCount(15); // Reset clue countdown 
+    setLastDatePlayed(date)
   };
 
   const getUserData = async (u) => {
@@ -140,14 +144,12 @@ export default function Game() {
         }
       });
 
-      //console.log(response)
-      const data = await response.json()
-      console.log(data)
+      const responseData = response.data.data
 
-      // setCurrentStreak(responseData.currentStreak)
-      // setLastDatePlayed(responseData.lastDatePlayed)
-      // setGamesPlayed(responseData.gamesPlayed)
-      // setGamesWon(responseData.gamesWon)
+      setCurrentStreak(responseData.currentStreak)
+      setLastDatePlayed(responseData.lastDatePlayed)
+      setGamesPlayed(responseData.gamesPlayed)
+      setGamesWon(responseData.gamesWon)
       
     } catch (error) {
       if (error.response) {
@@ -323,6 +325,8 @@ export default function Game() {
     // calculate win ratio
 
     //update last date played
+    console.log(lastDatePlayed)
+
 
     //validate for streak here
     // if {

@@ -5,24 +5,9 @@ import { db } from "../../../firebase";
 export async function POST(request) {
 
     try {
-      // Reference to the user's document in the "userStats" collection, where userId is the key
+      // update user data to backend
       const eventData = await request.json()
       const userRef = doc(db, "userStats", eventData.userId);
-      //const docSnap = await getDoc(userRef);
-
-      // if (!docSnap.exists()) {
-
-      //   const initialData = {
-      //     gamesPlayed: 0,
-      //     gamesWon: 0,
-      //     currentStreak: 0,
-      //     lastDatePlayed: "", 
-      //   };
-
-      //   await setDoc(userRef, initialData);
-      //   console.log("User data created successfully!");
-      // }
-      // else {
 
         const updatedUserData = {};
 
