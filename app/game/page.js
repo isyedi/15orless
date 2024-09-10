@@ -44,7 +44,7 @@ export default function Game() {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   
   //userdata
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState('irfan@gmail.com');
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [gamesWon, setGamesWon] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
@@ -57,7 +57,7 @@ export default function Game() {
   
   const [anchorEl, setAnchorEl] = useState(null);
   
-  const { isSignedIn } = useUser();
+  //const { isSignedIn } = useUser();
 
   const [win] = useSound('/audio/win.mp3');
   const [lose] = useSound('/audio/lose.mp3');
@@ -76,8 +76,6 @@ export default function Game() {
   };
 
 
-
-
   useEffect(() => {
     let timer;
     if (!isGameOver) {
@@ -90,6 +88,8 @@ export default function Game() {
 
   useEffect(() => {
     startGame();
+    createUserData(userId)
+    getUserData(userId)
   }, []);
 
   useEffect(() => {
@@ -129,21 +129,27 @@ export default function Game() {
     setEndGameGuesses('');  // Set Endgame guesses based on win or loss
     setActiveSegments(Array(8).fill(false));  // Reset circle segments
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
-    setCount(15); // Reset clue countdown
-    setUserId('1'); // Store user id 
-    setCurrentStreak(0) // make conditional if prev day wasn't played
-    setLastDatePlayed('')
-    setGamesWon(0)
-    getUserData(userId)
+    setCount(15); // Reset clue countdown 
   };
 
-  const getUserData = async (p) => {
+  const getUserData = async (u) => {
     try {
       const response = await axios.get("/api/get-user-data", {
-        params: { p },
+        params: {
+          user: u
+        }
+        
       });
 
-      console.log(userData)// Store the retrieved data in state
+      const data = await response.json();
+      console.log('HI')
+      console.log(data.gamesPlayed)
+
+      setCurrentStreak(responseData.currentStreak)
+      setLastDatePlayed(responseData.lastDatePlayed)
+      setGamesPlayed(responseData.gamesPlayed)
+      setGamesWon(responseData.gamesWon)
+      
     } catch (error) {
       if (error.response) {
         // Server responded with a status other than 2xx
@@ -154,18 +160,55 @@ export default function Game() {
     }
   }
 
+  const createUserData = async (userId) => {
+    try {
+      const response = await axios.post('/api/create-user-data', {
+        user: userId,
+      });
+
+      console.log(response)
+
+      return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
+    } catch (error) {
+      if (error.response) {
+        // Server responded with a status other than 2xx
+        console.error("Error submitting data:", error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response received:", error.request);
+      } else {
+        // Something else caused an error
+        console.error("Error:", error.message);
+      }
+    }
+  };
+
   const updateUserData = async (userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed) => {
     try {
 
       const response = await axios.post('/api/handle-user-data', {
-        eventData: {
           userId,
           gamesPlayed,
           gamesWon,
           currentStreak,
           lastDatePlayed,
-        },
       });
+
+      console.log(response)
+
+      // const response = await fetch('/api/handle-user-data', {
+      //   method: 'POST',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   },
+      //   body: JSON.stringify({
+      //     userId,
+      //     gamesPlayed,
+      //     gamesWon,
+      //     currentStreak,
+      //     lastDatePlayed,
+      //   })
+      // });
 
       return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
     } catch (error) {
@@ -186,7 +229,6 @@ export default function Game() {
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
-
 
 
   const handleGuess = async () => {
@@ -278,6 +320,8 @@ export default function Game() {
       }
     }
     setCurrentGuess('');
+
+    
   };
 
   const handleKeyPress = (e) => {
@@ -290,7 +334,15 @@ export default function Game() {
   const endGame = async () => {
     setIsGameOver(true)
     setOpen(true)
-    setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
+    if (gamesPlayed == 0) {
+      setGamesPlayed(1)
+    }
+    else {
+      setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
+    }
+    //check for win
+
+    //update last date played
 
     //validate for streak here
     // if {
@@ -300,7 +352,6 @@ export default function Game() {
     // }
 
     updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
-
   }
 
   const handleOpen = () => {
