@@ -138,17 +138,16 @@ export default function Game() {
         params: {
           user: u
         }
-        
       });
 
-      const data = await response.json();
-      console.log('HI')
-      console.log(data.gamesPlayed)
+      //console.log(response)
+      const data = await response.json()
+      console.log(data)
 
-      setCurrentStreak(responseData.currentStreak)
-      setLastDatePlayed(responseData.lastDatePlayed)
-      setGamesPlayed(responseData.gamesPlayed)
-      setGamesWon(responseData.gamesWon)
+      // setCurrentStreak(responseData.currentStreak)
+      // setLastDatePlayed(responseData.lastDatePlayed)
+      // setGamesPlayed(responseData.gamesPlayed)
+      // setGamesWon(responseData.gamesWon)
       
     } catch (error) {
       if (error.response) {
@@ -165,8 +164,6 @@ export default function Game() {
       const response = await axios.post('/api/create-user-data', {
         user: userId,
       });
-
-      console.log(response)
 
       return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
     } catch (error) {
@@ -186,29 +183,13 @@ export default function Game() {
   const updateUserData = async (userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed) => {
     try {
 
-      const response = await axios.post('/api/handle-user-data', {
+      const response = await axios.post('/api/update-user-data', {
           userId,
           gamesPlayed,
           gamesWon,
           currentStreak,
           lastDatePlayed,
       });
-
-      console.log(response)
-
-      // const response = await fetch('/api/handle-user-data', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({
-      //     userId,
-      //     gamesPlayed,
-      //     gamesWon,
-      //     currentStreak,
-      //     lastDatePlayed,
-      //   })
-      // });
 
       return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
     } catch (error) {
@@ -288,9 +269,9 @@ export default function Game() {
         } else {
           setEndGameGuesses(`${14 - totalCluesUsed} guesses remaining`)
         }
-        setGamesWon((prevGamesWon) => prevGamesWon + 1)
+        
         win() // Play win sound
-        endGame();
+        endGame(true);
       }
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1 && totalCluesUsed < 14) {
@@ -321,7 +302,6 @@ export default function Game() {
     }
     setCurrentGuess('');
 
-    
   };
 
   const handleKeyPress = (e) => {
@@ -331,16 +311,16 @@ export default function Game() {
   };
 
 
-  const endGame = async () => {
+  const endGame = async (isWon = false) => {
     setIsGameOver(true)
     setOpen(true)
-    if (gamesPlayed == 0) {
-      setGamesPlayed(1)
+    setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
+    
+    if (isWon == true) {
+      setGamesWon((prevGamesWon) => prevGamesWon + 1)
     }
-    else {
-      setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
-    }
-    //check for win
+
+    // calculate win ratio
 
     //update last date played
 
@@ -351,6 +331,9 @@ export default function Game() {
 
     // }
 
+  }
+
+  if (isGameOver) {
     updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
   }
 

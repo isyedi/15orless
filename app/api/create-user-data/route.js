@@ -7,7 +7,6 @@ export async function POST(request) {
     try {
       // create a userData entry in the backend if it doesn't already exist
       const eventData = await request.json()
-      console.log(eventData.user)
       const userRef = doc(db, "userStats", eventData.user);
       const docSnap = await getDoc(userRef);
       if (!docSnap.exists()) {

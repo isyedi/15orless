@@ -8,21 +8,21 @@ export async function POST(request) {
       // Reference to the user's document in the "userStats" collection, where userId is the key
       const eventData = await request.json()
       const userRef = doc(db, "userStats", eventData.userId);
-      const docSnap = await getDoc(userRef);
+      //const docSnap = await getDoc(userRef);
 
-      if (!docSnap.exists()) {
+      // if (!docSnap.exists()) {
 
-        const initialData = {
-          gamesPlayed: 0,
-          gamesWon: 0,
-          currentStreak: 0,
-          lastDatePlayed: "", 
-        };
+      //   const initialData = {
+      //     gamesPlayed: 0,
+      //     gamesWon: 0,
+      //     currentStreak: 0,
+      //     lastDatePlayed: "", 
+      //   };
 
-        await setDoc(userRef, initialData);
-        console.log("User data created successfully!");
-      }
-      else {
+      //   await setDoc(userRef, initialData);
+      //   console.log("User data created successfully!");
+      // }
+      // else {
 
         const updatedUserData = {};
 
@@ -30,10 +30,9 @@ export async function POST(request) {
         updatedUserData.gamesWon = eventData.gamesWon;
         updatedUserData.currentStreak = eventData.currentStreak;
         updatedUserData.lastDatePlayed = eventData.lastDatePlayed;
-        console.log(updatedUserData)
 
         await updateDoc(userRef, updatedUserData);
-      }
+      //}
 
       return new Response(JSON.stringify({ success: true, message: "Successfully updated user data" }), { status: 200 });
 
