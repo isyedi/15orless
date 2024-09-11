@@ -283,7 +283,8 @@ export default function Game() {
 
       // Edge cases
       if (totalCluesUsed >= 14 && numCorrect >= 7) {
-        endGame(true);
+        setIsGameOver(true);
+        setTimeout(() => endGame(true), 2000);
       } else if (totalCluesUsed >= 14 && numCorrect < 7) {
         // Checks if last guess is correct but user still loses
         correct() // Play correct sound
@@ -299,7 +300,8 @@ export default function Game() {
         }
       } else {
         // User wins
-        endGame(true);
+        setIsGameOver(true);
+        setTimeout(() => endGame(true), 2000);
       }
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
@@ -717,7 +719,6 @@ export default function Game() {
             </div>
 
 
-            {/* TODO: make it to where user needs to have some input and reveal all words if user loses */}
             <TextField
               className={`${styles.textField} ${shake ? styles.shake : ''}`}
               error={isError} // Set error state for incorrect guesses
@@ -727,7 +728,7 @@ export default function Game() {
               onChange={(e) => setCurrentGuess(e.target.value)}
               onKeyDown={handleKeyPress}
               variant="outlined" // Adjust as necessary
-              disabled={totalCluesUsed > 14} // Disable the input field when the game is over
+              disabled={totalCluesUsed > 14 || isGameOver} // Disable the input field when the game is over
               inputProps={{ maxLength: 20 }} // Set the maximum length of the input field 
               InputProps={{
                 endAdornment: (
