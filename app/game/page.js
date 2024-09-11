@@ -52,7 +52,6 @@ export default function Game() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [lastDatePlayed, setLastDatePlayed] = useState('');
   const date = new Date();
-  const [winRatio, setWinRatio] = useState(0);
 
   const [count, setCount] = useState(15);
   const [shake, setShake] = useState(false);
@@ -144,7 +143,6 @@ export default function Game() {
     setCount(15); // Reset clue countdown 
     setNumCorrect(0);
     setLastDatePlayed(date)
-    setWinRatio(Math.round((gamesWon / gamesPlayed) * 100));
   };
 
   const getUserData = async (u) => {
@@ -397,10 +395,6 @@ export default function Game() {
     if (isWon) {
       setGamesWon((prevGamesWon) => prevGamesWon + 1)
     }
-
-    // calculate win ratio
-    const winCalc = Math.round((gamesWon / gamesPlayed) * 100)
-    setWinRatio(winCalc);
 
     //update last date played
     console.log(lastDatePlayed)
@@ -813,7 +807,7 @@ export default function Game() {
                 
 
                   <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                    Win %: {winRatio}
+                    Win %: {Math.round((gamesWon / gamesPlayed) * 100)}
                   </Typography>
 
                   
