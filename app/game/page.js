@@ -7,7 +7,7 @@ import { SignedIn, SignedOut, SignOutButton, UserButton, UserProfile, useUser } 
 import { useAuth } from '@clerk/clerk-react'
 import ShareIcon from '@mui/icons-material/Share';
 
-import { Box, Typography, Stack, List, ListItem, Grid, Paper} from "@mui/material";
+import { Box, Typography, Stack, List, ListItem, Grid, Paper, getListItemSecondaryActionClassesUtilityClass, Alert} from "@mui/material";
 import { useRouter } from 'next/navigation';
 
 import { FiMenu } from "react-icons/fi";
@@ -32,7 +32,6 @@ export default function Game() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [currentClueIndex, setCurrentClueIndex] = useState(0);
   const [currentGuess, setCurrentGuess] = useState('');
-  const [result, setResult] = useState(null);
   const [isGameOver, setIsGameOver] = useState(false);
   const [guessedWords, setGuessedWords] = useState(Array(8).fill(''));  // Track which words have been guessed
   const [totalCluesUsed, setTotalCluesUsed] = useState(0);  // Track total number of clues used
@@ -46,13 +45,13 @@ export default function Game() {
   const [numCorrect, setNumCorrect] = useState(0);
   
   //userdata
-  const { userId } = useAuth()
+  const { userId } = useAuth();
   //const [user, setUser] = useState('');
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [gamesWon, setGamesWon] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [lastDatePlayed, setLastDatePlayed] = useState('');
-  const date = new Date()
+  const date = new Date();
   const [winRatio, setWinRatio] = useState(0);
 
   const [count, setCount] = useState(15);
@@ -68,6 +67,7 @@ export default function Game() {
   const [lose] = useSound('/audio/lose.mp3');
   const [correct] = useSound('/audio/correct.mp3');
   const [incorrect] = useSound('/audio/incorrect.mp3');
+  const [reveal] = useSound('/audio/reveal.mp3')
 
   //modal clues used
   const [isCluesModalOpen, setIsCluesModalOpen] = useState(false); // New state for clue modal
@@ -131,7 +131,6 @@ export default function Game() {
     setCurrentWordIndex(0);
     setCurrentClueIndex(0);
     setCurrentGuess('');
-    setResult(null);
     setIsGameOver(false);
     setGuessedWords(Array(8).fill(''));  // Reset guessed words for a new game
     setTotalCluesUsed(0);  // Reset total clues used for a new game
@@ -145,6 +144,7 @@ export default function Game() {
     setCount(15); // Reset clue countdown 
     setNumCorrect(0);
     setLastDatePlayed(date)
+    setWinRatio(Math.round((gamesWon / gamesPlayed) * 100));
   };
 
   const getUserData = async (u) => {
@@ -226,6 +226,20 @@ export default function Game() {
 
 
   const handleGuess = async () => {
+    // Check if the text field is empty
+    if (currentGuess.trim() === '') {
+      // Optionally set an error message or highlight the text field
+      setIsError(true);
+      setTimeout(() => {
+        setIsError(false); // Hide error after a short time
+      }, 800);
+      setShake(true);
+        setTimeout(() => {
+          setShake(false);  // Stop shaking after animation
+        }, 500);  // Shake duration (match CSS animation)
+      return; // Exit the function early if no input
+    }
+
     const currentWord = clues[currentWordIndex].word;
 
     setTotalCluesUsed((prev) => prev + 1);  // Increment total clues used
@@ -268,15 +282,13 @@ export default function Game() {
       setGuessedWords(newGuessedWords);
 
       // Edge cases
-        setEndGameGuesses(`Ran out of guesses`)
-        lose() // Play lose sound
       if (totalCluesUsed >= 14 && numCorrect >= 7) {
         endGame(true);
       } else if (totalCluesUsed >= 14 && numCorrect < 7) {
         // Checks if last guess is correct but user still loses
-        endGame();
+        correct() // Play correct sound
+        setTimeout(() => endGame(false, true), 2000);
       }
-
       
       if (currentWordIndex < clues.length - 1) {
         setCurrentWordIndex(currentWordIndex + 1);
@@ -295,10 +307,10 @@ export default function Game() {
 
         // Edge cases
         if (totalCluesUsed >= 14 && numCorrect >= 7) {
-          endGame();
+          setTimeout(endGame, 2000);
         }
         if (count <= 1) {
-          endGame();
+          setTimeout(endGame, 2000);
         }
         
         setIsError(true);
@@ -311,13 +323,13 @@ export default function Game() {
           setShake(false);  // Stop shaking after animation
         }, 500);  // Shake duration (match CSS animation)
 
-        if (!isGameOver && totalCluesUsed < 14) {
+        if (!isGameOver) {
           incorrect() // Play incorrect sound
         }
         
       } else {
         // User loses
-        endGame()
+        setTimeout(endGame, 2000);
       }
     }
     setCurrentGuess('');
@@ -329,9 +341,9 @@ export default function Game() {
       handleGuess();  // Trigger the handleGuess function when Enter is pressed
     } 
   };
-  
 
-  const endGame = async (isWon = false) => {
+  const endGame = async (isWon = false, first = false) => {
+    // End game message and sound
     if (isWon) {
       setEndGameTitle('You got 15 or less!')
       if ((14 - totalCluesUsed) === 0) {
@@ -339,11 +351,39 @@ export default function Game() {
       } else {
         setEndGameGuesses(`${14 - totalCluesUsed} guesses remaining`)
       }
+      handleOpen()
       win() // Play win sound
     } else {
       setEndGameTitle('Next time!')
       setEndGameGuesses(`Ran out of guesses`)
-      lose() // Play lose sound
+
+      // Sequentially reveal remaining words one by one using recursive setTimeout
+      const revealWords = (index) => {
+        if (index >= clues.length) {
+          handleOpen();
+          lose();
+          return; // Stop when all words are revealed
+        }
+
+        setGuessedWords((prevGuessedWords) =>
+            prevGuessedWords.map((word, i) =>
+                i === index && !word ? clues[i].word : word
+            )
+        );
+        reveal() // audio
+
+        // Call revealWords again after a delay to reveal the next word
+        setTimeout(() => {
+            revealWords(index + 1);
+        }, 1000); // Adjust delay (1000ms = 1 second)
+      };
+
+      if (first) {
+        revealWords(currentWordIndex + 1)
+      } else {
+        revealWords(currentWordIndex)
+      }
+
     }
 
     setIsGameOver(true)
@@ -370,16 +410,16 @@ export default function Game() {
     // else {
 
     // }
-
-    handleOpen() // Open endgame modal
     
     return;
   }
 
+  // update data for user after every game played
   if (isGameOver) {
     updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
   }
 
+  // for end game modal
   const handleOpen = () => {
     setOpen(true);
   };
@@ -417,7 +457,7 @@ export default function Game() {
           <h3>Menu</h3>
         </div>
         <div className={styles.sidebarContent}>
-          <div className={styles.content}>
+          <div className={styles.content} onClick={handleOpen}>
             <LeaderboardIcon sx={{
               fontSize: '1.8rem',
             }} />
@@ -551,10 +591,10 @@ export default function Game() {
             variant="contained" 
             disableRipple
             sx={{
-              py: 0.8,
+              p: 0.6,
               my: 1,
               width: '30%',
-              fontSize: { xs: '8px', sm: '12px', md: '14px', lg: '16px' },
+              fontSize: { xs: '12px', md: '14px', lg: '16px' },
               color: 'black',
               background: '#C4C9C1', 
               border: '3px solid black',
@@ -687,7 +727,7 @@ export default function Game() {
               onChange={(e) => setCurrentGuess(e.target.value)}
               onKeyDown={handleKeyPress}
               variant="outlined" // Adjust as necessary
-              disabled={isGameOver} // Disable the input field when the game is over
+              disabled={totalCluesUsed > 14} // Disable the input field when the game is over
               inputProps={{ maxLength: 20 }} // Set the maximum length of the input field 
               InputProps={{
                 endAdornment: (
@@ -716,8 +756,6 @@ export default function Game() {
               </div>
             ))}
           </div>
-          
-          <Button onClick={handleOpen}>Endgame</Button>
 
         </div>
 
@@ -753,7 +791,7 @@ export default function Game() {
 
             <Stack direction="row" spacing={25} sx = {{ pt: 10, justifyContent: 'center'}}>
                 <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                  {`${guessedWords.filter(Boolean).length} out of 8`} <br />  {`words correct!`}
+                  {`${numCorrect} out of 8`} <br />  {`words correct!`}
                   </Typography>
                 
 
