@@ -267,16 +267,13 @@ export default function Game() {
       newGuessedWords[currentWordIndex] = currentWord;  // Mark the word as guessed
       setGuessedWords(newGuessedWords);
 
+      // Edge cases
+        setEndGameGuesses(`Ran out of guesses`)
+        lose() // Play lose sound
       if (totalCluesUsed >= 14 && numCorrect >= 7) {
-        setEndGameTitle('You got 15 or less!')
-        setEndGameGuesses('Phew! All guesses used')
-        win() // Play win sound
-        endGame();
+        endGame(true);
       } else if (totalCluesUsed >= 14 && numCorrect < 7) {
         // Checks if last guess is correct but user still loses
-        setEndGameTitle('Next Time!')
-        setEndGameGuesses('Ran out of guesses')
-        lose() // Play lose sound
         endGame();
       }
 
@@ -290,31 +287,17 @@ export default function Game() {
         }
       } else {
         // User wins
-        setEndGameTitle('You got 15 or less!')
-        if ((14 - totalCluesUsed) === 0) {
-          setEndGameGuesses('Phew! All guesses used')
-        } else {
-          setEndGameGuesses(`${14 - totalCluesUsed} guesses remaining`)
-        }
-        
-        win() // Play win sound
         endGame(true);
       }
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
         setCurrentClueIndex(currentClueIndex + 1); // Indexes to next clue for word
 
+        // Edge cases
         if (totalCluesUsed >= 14 && numCorrect >= 7) {
-          setEndGameTitle('Next time!')
-          setEndGameGuesses(`Ran out of guesses`)
-          lose() // Play lose sound
           endGame();
         }
-
         if (count <= 1) {
-          setEndGameTitle('Next time!')
-          setEndGameGuesses(`Ran out of guesses`)
-          lose() // Play lose sound
           endGame();
         }
         
@@ -334,9 +317,6 @@ export default function Game() {
         
       } else {
         // User loses
-        setEndGameTitle('Next time!')
-        setEndGameGuesses(`Ran out of guesses`)
-        lose() // Play lose sound
         endGame()
       }
     }
@@ -352,13 +332,27 @@ export default function Game() {
   
 
   const endGame = async (isWon = false) => {
+    if (isWon) {
+      setEndGameTitle('You got 15 or less!')
+      if ((14 - totalCluesUsed) === 0) {
+        setEndGameGuesses('Phew! All guesses used')
+      } else {
+        setEndGameGuesses(`${14 - totalCluesUsed} guesses remaining`)
+      }
+      win() // Play win sound
+    } else {
+      setEndGameTitle('Next time!')
+      setEndGameGuesses(`Ran out of guesses`)
+      lose() // Play lose sound
+    }
+
     setIsGameOver(true)
 
     // Increment user's total games played
     setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
     
     // Increment user's total wins
-    if (isWon == true) {
+    if (isWon) {
       setGamesWon((prevGamesWon) => prevGamesWon + 1)
     }
 
@@ -723,7 +717,7 @@ export default function Game() {
             ))}
           </div>
           
-          <Button onClick={endGame}>Endgame</Button>
+          <Button onClick={handleOpen}>Endgame</Button>
 
         </div>
 
