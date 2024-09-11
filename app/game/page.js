@@ -53,6 +53,7 @@ export default function Game() {
   const [currentStreak, setCurrentStreak] = useState(0);
   const [lastDatePlayed, setLastDatePlayed] = useState('');
   const date = new Date()
+  const [winRatio, setWinRatio] = useState(0);
 
   const [count, setCount] = useState(15);
   const [shake, setShake] = useState(false);
@@ -352,14 +353,18 @@ export default function Game() {
 
   const endGame = async (isWon = false) => {
     setIsGameOver(true)
+
+    // Increment user's total games played
     setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
-    handleOpen()
     
+    // Increment user's total wins
     if (isWon == true) {
       setGamesWon((prevGamesWon) => prevGamesWon + 1)
     }
 
     // calculate win ratio
+    const winCalc = Math.round((gamesWon / gamesPlayed) * 100)
+    setWinRatio(winCalc);
 
     //update last date played
     console.log(lastDatePlayed)
@@ -371,6 +376,8 @@ export default function Game() {
     // else {
 
     // }
+
+    handleOpen() // Open endgame modal
     
     return;
   }
@@ -766,19 +773,23 @@ export default function Game() {
                   </Typography>
             </Stack>
 
-            <Stack direction="row" spacing={25} sx = {{ pt: 10, textAlign: 'center', justifyContent: 'center'}}>
+            <Stack direction="row" spacing={15} sx = {{ pt: 10, textAlign: 'center', justifyContent: 'center'}}>
                 <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                  All time stats
+                  Games Completed: {gamesPlayed}
                   </Typography>
                 
 
                   <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                    win %
+                    Win %: {winRatio}
                   </Typography>
 
                   
                   <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                    current streak
+                    Current Streak
+                  </Typography>
+
+                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                    Max Streak
                   </Typography>
             </Stack>
 
