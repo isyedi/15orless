@@ -1,14 +1,12 @@
-
 'use client'
 
 import { Box, Button, Modal, Typography, List, ListItem } from "@mui/material";
 import Head from "next/head";
-import Image from "next/image";
 import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton, SignOutButton } from '@clerk/nextjs'
 import { Alfa_Slab_One } from "next/font/google";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from '@mui/icons-material/Close';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 
 const alfaSlabOne = Alfa_Slab_One({
@@ -22,6 +20,13 @@ export default function Home() {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // Set this state to true once the component has mounted on the client
+    setIsClient(true);
+  }, []);
 
   // const createUser = async (email) => {
   //   try {
@@ -223,7 +228,7 @@ export default function Home() {
           bgcolor="white"
           boxShadow="5px 5px 0px 0px rgba(0, 0, 0, 1)"
           p={3}
-          overflow={window.innerHeight < 800 ? 'scroll' : 'hidden'}
+          overflow={isClient && window.innerHeight < 800 ? 'scroll' : 'hidden'}
           sx={{
             transform: "translate(-50%, -50%)", 
             border: "3px solid black",

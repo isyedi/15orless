@@ -78,6 +78,13 @@ export default function Game() {
     return clues[currentWordIndex]?.clues.slice(0, currentClueIndex + 1) || [];
   };
 
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    // Set this state to true once the component has mounted on the client
+    setIsClient(true);
+  }, []);
+
   useEffect(() => {
     let timer;
     if (!isGameOver) {
@@ -299,7 +306,14 @@ export default function Game() {
         if (totalCluesUsed >= 14 && numCorrect >= 7) {
           setEndGameTitle('Next time!')
           setEndGameGuesses(`Ran out of guesses`)
-          lose() // Play win sound
+          lose() // Play lose sound
+          endGame();
+        }
+
+        if (count <= 1) {
+          setEndGameTitle('Next time!')
+          setEndGameGuesses(`Ran out of guesses`)
+          lose() // Play lose sound
           endGame();
         }
         
@@ -313,7 +327,7 @@ export default function Game() {
           setShake(false);  // Stop shaking after animation
         }, 500);  // Shake duration (match CSS animation)
 
-        if (!isGameOver) {
+        if (!isGameOver && totalCluesUsed < 14) {
           incorrect() // Play incorrect sound
         }
         
@@ -330,16 +344,16 @@ export default function Game() {
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !isGameOver) {
+    if (e.key === 'Enter') {
       handleGuess();  // Trigger the handleGuess function when Enter is pressed
-    }
+    } 
   };
-
+  
 
   const endGame = async (isWon = false) => {
     setIsGameOver(true)
-    setOpen(true)
     setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
+    handleOpen()
     
     if (isWon == true) {
       setGamesWon((prevGamesWon) => prevGamesWon + 1)
@@ -357,7 +371,8 @@ export default function Game() {
     // else {
 
     // }
-
+    
+    return;
   }
 
   if (isGameOver) {
@@ -840,7 +855,7 @@ export default function Game() {
             bgcolor="white"
             boxShadow="5px 5px 0px 0px rgba(0, 0, 0, 1)"
             p={3}
-            overflow={window.innerHeight < 800 ? 'scroll' : 'hidden'}
+            overflow={isClient && window.innerHeight < 800 ? 'scroll' : 'hidden'}
             sx={{
               transform: "translate(-50%, -50%)", 
               border: "3px solid black",
