@@ -430,11 +430,17 @@ export default function Game() {
     setIsSidebarOpen((prev) => !prev);  // Toggle sidebar visibility
   };
 
+  const toggleSidebarMain = () => {
+    if (isSidebarOpen) {
+      setIsSidebarOpen(false);
+    }
+  }
+
   return (
     
     <div className={styles.container}>
       {/* Header Section with Title */}
-      <div className={styles.header}>
+      <div className={styles.header} onClick={toggleSidebarMain}>
         <div className={styles.menu} onClick={toggleSidebar}> <FiMenu /> </div>
         <h1 className={styles.title}>{count} or Less</h1>
       </div>
@@ -548,7 +554,7 @@ export default function Game() {
       </div>
 
       {/* Main content container */}
-      <div className={styles.mainContentContainer}>
+      <div className={styles.mainContentContainer} onClick={toggleSidebarMain}>
 
         {/* Gray boxes for words */}
         <div className={styles.boxContainer}>
@@ -760,7 +766,9 @@ export default function Game() {
         onClose={handleClose}
         aria-labelledby="how-to-play-title"
         aria-describedby="how-to-play-description"
-        sx = {{ backgroundImage: "url('/bg-image.png')" }}
+        sx = {{ 
+          background: numCorrect > 7 ? 'url(/confetti.gif)' : 'url(/bg-image.png)',
+        }}
        >
           <Box
             position="absolute"
