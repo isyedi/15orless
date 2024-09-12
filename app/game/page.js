@@ -3,21 +3,20 @@
 import { useState, useEffect} from 'react';
 import axios from 'axios';
 import styles from './Game.module.css';  // Import the CSS module
-import { SignedIn, SignedOut, SignOutButton, UserButton, UserProfile, useUser } from '@clerk/nextjs';
+import { SignedIn, SignedOut, SignOutButton, UserButton } from '@clerk/nextjs';
 import { useAuth } from '@clerk/clerk-react'
 import ShareIcon from '@mui/icons-material/Share';
 
-import { Box, Typography, Stack, List, ListItem, Grid, Paper, getListItemSecondaryActionClassesUtilityClass, Alert} from "@mui/material";
+import { Box, Typography, Stack, Grid} from "@mui/material";
 import { useRouter } from 'next/navigation';
 
 import { FiMenu } from "react-icons/fi";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import LeaderboardIcon from '@mui/icons-material/Leaderboard';
 import CloseIcon from '@mui/icons-material/Close';
-import { TextField, IconButton, InputAdornment, Modal, Button } from '@mui/material';
+import { TextField, InputAdornment, Modal, Button } from '@mui/material';
 import { Alfa_Slab_One } from "next/font/google";
 import useSound from 'use-sound';
-import { BorderTop } from '@mui/icons-material';
 
 const alfaSlabOne = Alfa_Slab_One({
   weight: '400', 
@@ -51,16 +50,12 @@ export default function Game() {
   const [gamesWon, setGamesWon] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [lastDatePlayed, setLastDatePlayed] = useState('');
-  const date = new Date();
+  const date = new Date().toLocaleDateString('en-CA');
 
   const [count, setCount] = useState(15);
   const [shake, setShake] = useState(false);
   const [isError, setIsError] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
-  
-  const [anchorEl, setAnchorEl] = useState(null);
-  
-  //const { isSignedIn } = useUser();
 
   const [win] = useSound('/audio/win.mp3');
   const [lose] = useSound('/audio/lose.mp3');
@@ -97,32 +92,32 @@ export default function Game() {
 
   useEffect(() => {
     startGame();
+    checkLastPlayed(userId)
     createUserData(userId)
     getUserData(userId)
-    console.log(userId)
   }, []);
 
-  useEffect(() => {
-    const circle = document.getElementById('circle');
-    const totalTicks = 8; // Number of ticks you want around the circle
-    const radius = circle.offsetWidth * 0.48; // Adjust based on your circle size
+  // useEffect(() => {
+  //   const circle = document.getElementById('circle');
+  //   const totalTicks = 8; // Number of ticks you want around the circle
+  //   const radius = circle.offsetWidth * 0.48; // Adjust based on your circle size
 
-    for (let i = 0; i < totalTicks; i++) {
-      const tick = document.createElement('div');
-      tick.classList.add(styles.tick);
+  //   for (let i = 0; i < totalTicks; i++) {
+  //     const tick = document.createElement('div');
+  //     tick.classList.add(styles.tick);
 
-      // Calculate the angle for each tick
-      const angle = (360 / totalTicks) * i;
+  //     // Calculate the angle for each tick
+  //     const angle = (360 / totalTicks) * i;
 
-      // Position each tick based on its angle
-      tick.style.position = 'absolute'; // Make sure ticks are positioned relative to the circle
-      tick.style.transformOrigin = '0 0'; // Set the transform origin for correct positioning
-      tick.style.transform = `rotate(${angle}deg) translate(${radius}px)`; // Moves ticks outward by the radius
+  //     // Position each tick based on its angle
+  //     tick.style.position = 'absolute'; // Make sure ticks are positioned relative to the circle
+  //     tick.style.transformOrigin = '0 0'; // Set the transform origin for correct positioning
+  //     tick.style.transform = `rotate(${angle}deg) translate(${radius}px)`; // Moves ticks outward by the radius
 
-      // Append each tick to the circle
-      circle.appendChild(tick);
-    }
-  }, []);
+  //     // Append each tick to the circle
+  //     circle.appendChild(tick);
+  //   }
+  // }, []);
 
   const startGame = async () => {
     const response = await axios.get('/api/start-game');
@@ -142,8 +137,14 @@ export default function Game() {
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
     setCount(15); // Reset clue countdown 
     setNumCorrect(0);
-    setLastDatePlayed(date)
+    setLastDatePlayed(date);
   };
+
+  const checkLastPlayed = async (userId) => {
+    const response = await axios.post('/api/check-last-played', {
+      user: userId,
+    });
+  }
 
   const getUserData = async (u) => {
     try {
@@ -216,12 +217,6 @@ export default function Game() {
       }
     }
   };
-
-  
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
 
   const handleGuess = async () => {
     // Check if the text field is empty
