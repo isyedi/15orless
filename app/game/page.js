@@ -42,7 +42,7 @@ export default function Game() {
   const [numCorrect, setNumCorrect] = useState(0);
   
   //userdata
-  const { userId } = useAuth();
+  const { userId, isSignedIn } = useAuth();
   //const [user, setUser] = useState('');
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [gamesWon, setGamesWon] = useState(0);
@@ -72,6 +72,16 @@ export default function Game() {
   };
 
   const [isClient, setIsClient] = useState(false);
+
+
+  useEffect(() => {
+    if (isSignedIn && userId) {
+      checkLastPlayed(userId)
+      createUserData(userId);
+      getUserData(userId);
+    }
+  }, [isSignedIn, userId]);
+  
 
   useEffect(() => {
     // Set this state to true once the component has mounted on the client
@@ -138,22 +148,33 @@ export default function Game() {
   };
 
   const checkLastPlayed = async (userId) => {
-    const response = await axios.post('/api/check-last-played', {
-      user: userId,
-    });
+    if (!userId) return;  // Ensure userId is available
+    
+    try {
+      const response = await axios.post('/api/check-last-played', {
+        user: userId,
+      });
+  
+      // User has already played for the day
+      if (!response.data.playable) {
+        setIsGameOver(true);
+        setOpen(true);
+        return;
+      } else {
+        setIsGameOver(false);
+        // load game save state
+      }
 
-    // User has already played for the day
-    if (!response.data.playable) {
-      setIsGameOver(true);
-      setOpen(true);
-      return;
-    } else {
-      setIsGameOver(false);
-      // load game save state
+      return response.data;
+    } catch (error) {
+      console.error("Error in checkLastPlayed:", error);
+      return new Response(JSON.stringify({ error: error.response }), { status: 500 });
     }
-  }
+  };
+  
 
   const getUserData = async (u) => {
+    if (!userId) return;  // Ensure userId is available
     try {
       const response = await axios.get("/api/get-user-data", {
         params: {
@@ -179,6 +200,7 @@ export default function Game() {
   }
 
   const createUserData = async (userId) => {
+    if (!userId) return;  // Ensure userId is available
     try {
       const response = await axios.post('/api/create-user-data', {
         user: userId,
