@@ -118,6 +118,23 @@ export default function Game() {
   // }, []);
 
   const startGame = async () => {
+    // For signed-in users
+    if (isSignedIn) {
+      try {
+        const response = await axios.post('/api/check-last-played', { userId: userId });
+        if (response.data.playable) {
+          setIsGameOver(false);
+          return;
+        } else {
+          setIsGameOver(true);
+          setOpen(true);
+          return;
+        }
+      } catch (error) {
+        console.error("Error checking last played date for signed-in user:", error);
+      }
+    }
+
     const response = await axios.get('/api/start-game');
     setClues(response.data.clues);
     setCurrentWordIndex(0);
@@ -936,13 +953,13 @@ export default function Game() {
               Guess all <span style={{fontWeight: 'bold'}}>8 words</span> within <span style={{ fontWeight: 'bold' }}>15 tries or less</span>.
             </Typography>
             
-            <Typography sx={{ mt: 1, mb: 1, pl: 4 }}>
+            <div style={{ marginTop: 1, marginBottom: 6, paddingLeft: 24, fontFamily: "'Roboto', sans-serif", fontSize: '18px', lineHeight: '1.4' }}>
               <ul>
                 <li>Each guess must be singular.</li>
                 <li>Every wrong guess will provide you with another clue.</li>
                 <li>Make connections with the clues given to you for your guesses.</li>
               </ul>
-            </Typography>
+            </div>
             
             <Typography sx={{ fontFamily: alfaSlabOne.style.fontFamily, mb: 1 }}>
               Example:
