@@ -72,15 +72,6 @@ export default function Game() {
   };
 
   const [isClient, setIsClient] = useState(false);
-
-
-  useEffect(() => {
-    if (isSignedIn && userId) {
-      checkLastPlayed(userId)
-      createUserData(userId);
-      getUserData(userId);
-    }
-  }, [isSignedIn, userId]);
   
 
   useEffect(() => {
@@ -164,10 +155,7 @@ export default function Game() {
         setIsGameOver(false);
         // load game save state
       }
-
-      return response.data;
     } catch (error) {
-      console.error("Error in checkLastPlayed:", error);
       return new Response(JSON.stringify({ error: error.response }), { status: 500 });
     }
   };

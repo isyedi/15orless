@@ -19,16 +19,9 @@ export async function POST(req) {
     // If user has already played today, return that information
     if (lastPlayedData?.lastDatePlayed === todaysLocalDate) {
       return new Response(JSON.stringify({ playable: false, message: "You have already played today!" }), { status: 200 });
+    } else {
+      return new Response(JSON.stringify({ playable: true, message: "You can play today!" }), { status: 200 });
     }
-
-    // User has not played today, update the lastPlayed date
-    await setDoc(lastPlayedDoc, {
-      lastDatePlayed: todaysLocalDate
-    }, { merge: true });
-
-    return new Response(JSON.stringify({ playable: true, message: "You can play today!" }), { status: 200 });
-    
-
   } catch (error) {
     console.error("Error checking user play status:", error);
     return new Response(JSON.stringify({ message: "Internal server error" }), { status: 500 });
