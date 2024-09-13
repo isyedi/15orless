@@ -91,8 +91,8 @@ export default function Game() {
 
   useEffect(() => {
     startGame();
-    createUserData(userId)
-    getUserData(userId)
+    createUserData(userId);
+    getUserData(userId);
   }, []);
 
   // useEffect(() => {
@@ -155,6 +155,8 @@ export default function Game() {
         setIsGameOver(false);
         // load game save state
       }
+
+      return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
     } catch (error) {
       return new Response(JSON.stringify({ error: error.response }), { status: 500 });
     }
