@@ -124,7 +124,6 @@ export default function Game() {
         const response = await axios.post('/api/check-last-played', { userId: userId });
         if (response.data.playable) {
           setIsGameOver(false);
-          return;
         } else {
           setIsGameOver(true);
           setOpen(true);
