@@ -8,7 +8,6 @@ import { useAuth } from '@clerk/clerk-react'
 import ShareIcon from '@mui/icons-material/Share';
 
 import { Box, Typography, Stack, Grid} from "@mui/material";
-import { useRouter } from 'next/navigation';
 
 import { FiMenu } from "react-icons/fi";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -143,6 +142,16 @@ export default function Game() {
     const response = await axios.post('/api/check-last-played', {
       user: userId,
     });
+
+    // User has already played for the day
+    if (!response.data.playable) {
+      setIsGameOver(true);
+      setOpen(true);
+      return;
+    } else {
+      setIsGameOver(false);
+      // load game save state
+    }
   }
 
   const getUserData = async (u) => {

@@ -1,4 +1,4 @@
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 
 
@@ -11,6 +11,11 @@ export async function POST(req) {
 
     const lastPlayedSnapshot = await getDoc(lastPlayedDoc);
     const lastPlayedData = lastPlayedSnapshot.data();
+
+    if (!lastPlayedSnapshot.exists()) {
+      return new Response(JSON.stringify({ playable: true, message: "No game data found. You can play today!" }), { status: 200 });
+    }
+    
 
     // If user has already played today, return that information
     if (lastPlayedData?.lastDatePlayed === todaysLocalDate) {
