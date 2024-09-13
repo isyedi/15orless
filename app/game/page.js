@@ -90,7 +90,6 @@ export default function Game() {
 
   useEffect(() => {
     startGame();
-    checkLastPlayed(userId)
     createUserData(userId)
     getUserData(userId)
   }, []);
