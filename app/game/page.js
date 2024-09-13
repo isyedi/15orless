@@ -38,7 +38,6 @@ export default function Game() {
   const [open, setOpen] = useState(false);
   const [endGameTitle, setEndGameTitle] = useState('')
   const [endGameGuesses, setEndGameGuesses] = useState('')
-  const router = useRouter(); 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [numCorrect, setNumCorrect] = useState(0);
