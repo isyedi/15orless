@@ -114,7 +114,7 @@ export default function Home() {
               fontFamily: alfaSlabOne.style.fontFamily,
             }}
           >
-            Start Playing
+            Play
           </Button>
 
           <SignedOut>
