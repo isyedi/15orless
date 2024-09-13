@@ -43,7 +43,6 @@ export default function Game() {
   
   //userdata
   const { userId, isSignedIn } = useAuth();
-  //const [user, setUser] = useState('');
   const [gamesPlayed, setGamesPlayed] = useState(0);
   const [gamesWon, setGamesWon] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
@@ -91,8 +90,10 @@ export default function Game() {
 
   useEffect(() => {
     startGame();
-    createUserData(userId);
-    getUserData(userId);
+    if (isSignedIn) {
+      createUserData(userId);
+      getUserData(userId);
+    }
   }, []);
 
   // useEffect(() => {
@@ -161,31 +162,6 @@ export default function Game() {
     setLastDatePlayed(date);
   };
 
-  const checkLastPlayed = async (userId) => {
-    if (!userId) return;  // Ensure userId is available
-    
-    try {
-      const response = await axios.post('/api/check-last-played', {
-        user: userId,
-      });
-  
-      // User has already played for the day
-      if (!response.data.playable) {
-        setIsGameOver(true);
-        setOpen(true);
-        return;
-      } else {
-        setIsGameOver(false);
-        // load game save state
-      }
-
-      return new Response(JSON.stringify({success: true, message: "Successfully updated user data"  }), { status: 200 });
-    } catch (error) {
-      return new Response(JSON.stringify({ error: error.response }), { status: 500 });
-    }
-  };
-  
-
   const getUserData = async (u) => {
     if (!userId) return;  // Ensure userId is available
     try {
@@ -235,6 +211,7 @@ export default function Game() {
   };
 
   const updateUserData = async (userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed) => {
+    if (!userId) return;  // Ensure userId is available
     try {
 
       const response = await axios.post('/api/update-user-data', {
@@ -423,7 +400,8 @@ export default function Game() {
 
     }
 
-    setIsGameOver(true)
+    setIsGameOver(true);
+    localStorage.setItem('lastDatePlayed', date);
 
     // Increment user's total games played
     setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
@@ -448,7 +426,7 @@ export default function Game() {
   }
 
   // update data for user after every game played
-  if (isGameOver) {
+  if (isGameOver && isSignedIn) {
     updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
   }
 

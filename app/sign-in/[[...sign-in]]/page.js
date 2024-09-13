@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef } from 'react'
+import React from 'react'
 import { Box } from '@mui/material'
 import { SignIn } from '@clerk/nextjs'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';

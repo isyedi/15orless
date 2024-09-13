@@ -1,5 +1,5 @@
 
-import { doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 
 export async function GET(request) {

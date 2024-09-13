@@ -1,13 +1,13 @@
 'use client'
 
-import { Box, Button, Modal, Typography, List, ListItem } from "@mui/material";
+import { Box, Button, Modal, Typography } from "@mui/material";
 import Head from "next/head";
-import { ClerkProvider, SignInButton, SignedIn, SignedOut, UserButton, SignOutButton } from '@clerk/nextjs'
+import { SignedIn, SignedOut, SignOutButton } from '@clerk/nextjs'
 import { Alfa_Slab_One } from "next/font/google";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState, useEffect } from "react";
-import axios from "axios";
+
 
 const alfaSlabOne = Alfa_Slab_One({
   weight: '400', 
@@ -28,23 +28,6 @@ export default function Home() {
     setIsClient(true);
   }, []);
 
-  // const createUser = async (email) => {
-  //   try {
-  //     const response = await axios.get("/api/create-user-data", {
-  //         user: email,
-  //     });
-
-  //     console.log(response)
-  //     return new Response(JSON.stringify({ success: "successfully created user entry" }), { status: 500 });
-      
-  //   } catch (error) {
-  //     if (error.response) {
-  //       return new Response(JSON.stringify({ error: error.response }), { status: 500 });
-  //     } else {
-  //       console.log("Error making user data");
-  //     }
-  //   }
-  // }
 
   return (
     <>
