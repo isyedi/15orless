@@ -132,6 +132,13 @@ export default function Game() {
       } catch (error) {
         console.error("Error checking last played date for signed-in user:", error);
       }
+    } else {
+      // For anonymous users
+      const lastDatePlayed = localStorage.getItem('lastDatePlayed');
+      if (lastDatePlayed === date) {
+        setIsGameOver(true);
+        return;
+      }
     }
 
     const response = await axios.get('/api/start-game');
