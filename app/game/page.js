@@ -7,7 +7,7 @@ import { SignedIn, SignedOut, SignOutButton, UserButton } from '@clerk/nextjs';
 import { useAuth } from '@clerk/clerk-react'
 import ShareIcon from '@mui/icons-material/Share';
 
-import { Box, Typography, Stack, Grid} from "@mui/material";
+import { Box, Typography, Stack, Grid, Snackbar, Alert} from "@mui/material";
 
 import { FiMenu } from "react-icons/fi";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
@@ -356,6 +356,27 @@ export default function Game() {
     } 
   };
 
+  //endgame messages
+  const getEndMessage = () => {
+    if (totalCluesUsed == 8) {
+      return "Flawless!";
+    } else if (totalCluesUsed == 9) {
+      return "Too Easy!";
+    }else if(totalCluesUsed == 10){
+      return "Well Played!";
+    }else if (totalCluesUsed == 11){
+      return "Nice Job!";
+    }else if (totalCluesUsed == 12) {
+      return "Nice One!"
+    }else if (totalCluesUsed == 13) {
+      return "Close One!";
+    } else if (totalCluesUsed == 14) {
+      return "Phew!";
+    } else {
+      return "Next Time!";
+    }
+  };
+
   const endGame = async (isWon = false, first = false) => {
     // End game message and sound
     if (isWon) {
@@ -450,6 +471,28 @@ export default function Game() {
       setIsSidebarOpen(false);
     }
   }
+
+  //shares your stats for the day
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  const generateShareText = () => {
+    const date = new Date().toLocaleDateString();
+    const circles = Array.from({ length: 8 }).map((_, index) =>
+      index < numCorrect ? '🟢' : '⚫'
+    );
+   
+    return `${date}, ${count} Or Less: ${circles.join(' ')}`;
+  };
+  
+  const handleShare = () => {
+    const shareText = generateShareText();
+    navigator.clipboard.writeText(shareText).then(() => {
+      setOpenSnackbar(true);
+      setTimeout(() => setOpenSnackbar(false), 2000); // Hide message after 2 seconds
+    }).catch((error) => {
+      console.error('Failed to copy text: ', error);
+    });
+  };
 
   return (
     
@@ -595,6 +638,11 @@ export default function Game() {
           ))}
 
           <div className={styles.gameArea}>
+          {isGameOver && (
+            <div className={styles.endMessage}>
+              {getEndMessage()}
+            </div>
+          )}
             <div>
               Clue:
             </div>
@@ -871,6 +919,7 @@ export default function Game() {
               </Button>
               <Button variant="contained" 
               disableRipple
+              onClick={handleShare}
               sx={{
                 py: 1.5,
                 gap: 1,
@@ -894,7 +943,20 @@ export default function Game() {
                 Share <ShareIcon />
               </Button>
             </Stack>
-
+            <Snackbar
+        open={openSnackbar}
+        autoHideDuration={2000}
+        onClose={() => setOpenSnackbar(false)}
+        action={
+          <Button color="inherit" onClick={() => setOpenSnackbar(false)}>
+            Close
+          </Button>
+        }
+      >
+        <Alert onClose={() => setOpenSnackbar(false)} severity="success">
+          Copied your results to clipboard!
+        </Alert>
+      </Snackbar>
           </Box>
         </Modal>
         

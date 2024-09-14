@@ -1,13 +1,12 @@
 'use client'
 
-import { Box, Button, Modal, Typography } from "@mui/material";
+import { Box, Button, Modal, Typography, CircularProgress } from "@mui/material";
 import Head from "next/head";
-import { SignedIn, SignedOut, SignOutButton } from '@clerk/nextjs'
+import { SignedIn, SignedOut, SignOutButton, useAuth, useUser } from '@clerk/nextjs'
 import { Alfa_Slab_One } from "next/font/google";
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import { useState, useEffect } from "react";
-
 
 const alfaSlabOne = Alfa_Slab_One({
   weight: '400', 
@@ -17,24 +16,28 @@ const alfaSlabOne = Alfa_Slab_One({
 
 export default function Home() {
   const [open, setOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
   const [isClient, setIsClient] = useState(false);
+  const { isSignedIn } = useUser();
+  const { isLoaded, userId } = useAuth();
 
   useEffect(() => {
-    // Set this state to true once the component has mounted on the client
+    if (isLoaded) {
+      setIsLoading(false);
+    }
     setIsClient(true);
-  }, []);
-
+  }, [isLoaded]);
 
   return (
     <>
       <Head>
         <link rel="preconnect" href="https://fonts.gstatic.com" />
       </Head>
-      
+
       <Box
         width="100vw"
         height="100vh"
@@ -50,85 +53,57 @@ export default function Home() {
           backgroundRepeat: "no-repeat", 
         }}
       >
-        <Box
-          height="auto"
-          width="90%"
-          maxWidth="600px"
-          bgcolor="white"
-          border="3px solid black"
-          display="flex"
-          flexDirection="column"
-          alignItems="center"
-          sx={{
-            boxShadow: '10px 10px 0px 0px rgba(0, 0, 0, 1)',
-            borderRadius: 1,
-            p: {xs: 4, sm: 8, md: 10, lg: 10},
-          }}
-        >
-          <Typography
-            variant="h3"
+        {isLoading ? (
+          <CircularProgress />
+        ) : (
+          <Box
+            height="auto"
+            width="90%"
+            maxWidth="600px"
+            bgcolor="white"
+            border="3px solid black"
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
             sx={{
-              fontFamily: alfaSlabOne.style.fontFamily,
-              textAlign: 'center',
-              fontSize: { xs: 'h4.fontSize', sm: 'h3.fontSize' },
-            }}
-          >
-            15 Or Less
-          </Typography>
-
-            
-            
-          <Typography
-            variant="h6"
-            sx={{ 
-              textAlign: 'center',
-              py: 2,
-              fontSize: { xs: 'body1.fontSize', sm: 'h6.fontSize' },
-            }}
-          >
-            8 Words, 15 Chances. Can You Guess It?
-          </Typography>
-
-          <Button 
-            href="/game"
-            variant="contained" 
-            disableRipple
-            sx={{
-              mb: 2,
-              py: 1.5,
-              width: '80%',
-              fontSize: { xs: '16px', sm: '20px' },
-              color: 'black',
-              background: '#BCD4B4', 
-              border: '3px solid black',
+              boxShadow: '10px 10px 0px 0px rgba(0, 0, 0, 1)',
               borderRadius: 1,
-              cursor: 'pointer',
-              textTransform: 'none',
-              boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-              '&:hover': {
-                boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
-              }, 
-              '&:active': {
-                boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-              }, 
-              fontFamily: alfaSlabOne.style.fontFamily,
+              p: {xs: 4, sm: 8, md: 10, lg: 10},
             }}
           >
-            Play
-          </Button>
+            <Typography
+              variant="h3"
+              sx={{
+                fontFamily: alfaSlabOne.style.fontFamily,
+                textAlign: 'center',
+                fontSize: { xs: 'h4.fontSize', sm: 'h3.fontSize' },
+              }}
+            >
+              15 Or Less
+            </Typography>
 
-          <SignedOut>
+            <Typography
+              variant="h6"
+              sx={{ 
+                textAlign: 'center',
+                py: 2,
+                fontSize: { xs: 'body1.fontSize', sm: 'h6.fontSize' },
+              }}
+            >
+              8 Words, 15 Chances. Can You Guess It?
+            </Typography>
+
             <Button 
-              href="/sign-in"
+              href="/game"
               variant="contained" 
               disableRipple
               sx={{
-                mb: 3,
+                mb: 2,
                 py: 1.5,
                 width: '80%',
                 fontSize: { xs: '16px', sm: '20px' },
                 color: 'black',
-                background: 'white', 
+                background: '#BCD4B4', 
                 border: '3px solid black',
                 borderRadius: 1,
                 cursor: 'pointer',
@@ -143,55 +118,83 @@ export default function Home() {
                 fontFamily: alfaSlabOne.style.fontFamily,
               }}
             >
-              Log In
+              Play
             </Button>
-            
-          </SignedOut>
 
-        <SignedIn>
-          <SignOutButton>
-            <Button
-              variant="contained" 
-              disableRipple
-              sx={{
-                mb: 3,
-                py: 1.5,
-                width: '80%',
-                fontSize: { xs: '16px', sm: '20px' },
-                color: 'black',
-                background: 'white', 
-                border: '3px solid black',
-                borderRadius: 1,
-                cursor: 'pointer',
-                textTransform: 'none',
-                boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
-                '&:hover': {
-                  boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
-                }, 
-                '&:active': {
-                  boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
-                }, 
-                fontFamily: alfaSlabOne.style.fontFamily,
-              }}
-            >
-              Sign Out
-            </Button>
-          </SignOutButton>
-        </SignedIn>
+            <SignedOut>
+              <Button 
+                href="/sign-in"
+                variant="contained" 
+                disableRipple
+                sx={{
+                  mb: 3,
+                  py: 1.5,
+                  width: '80%',
+                  fontSize: { xs: '16px', sm: '20px' },
+                  color: 'black',
+                  background: 'white', 
+                  border: '3px solid black',
+                  borderRadius: 1,
+                  cursor: 'pointer',
+                  textTransform: 'none',
+                  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                  '&:hover': {
+                    boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                  }, 
+                  '&:active': {
+                    boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                  }, 
+                  fontFamily: alfaSlabOne.style.fontFamily,
+                }}
+              >
+                Log In
+              </Button>
+            </SignedOut>
 
-          <Box onClick={handleOpen} sx={{ 
-            cursor: 'pointer', 
-            '&:hover': {
-              '& .MuiSvgIcon-root': {
-                color: 'black', 
-                transform: 'scale(1.1)', 
-              },
-            } 
-          }}>
-            <HelpOutlineIcon style={{ fontSize: 40 }}/>
+            <SignedIn>
+              <SignOutButton>
+                <Button
+                  variant="contained" 
+                  disableRipple
+                  sx={{
+                    mb: 3,
+                    py: 1.5,
+                    width: '80%',
+                    fontSize: { xs: '16px', sm: '20px' },
+                    color: 'black',
+                    background: 'white', 
+                    border: '3px solid black',
+                    borderRadius: 1,
+                    cursor: 'pointer',
+                    textTransform: 'none',
+                    boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                    '&:hover': {
+                      boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                    }, 
+                    '&:active': {
+                      boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                    }, 
+                    fontFamily: alfaSlabOne.style.fontFamily,
+                  }}
+                >
+                  Sign Out
+                </Button>
+              </SignOutButton>
+            </SignedIn>
+
+            <Box onClick={handleOpen} sx={{ 
+              cursor: 'pointer', 
+              '&:hover': {
+                '& .MuiSvgIcon-root': {
+                  color: 'black', 
+                  transform: 'scale(1.1)', 
+                },
+              } 
+            }}>
+              <HelpOutlineIcon style={{ fontSize: 40 }}/>
+            </Box>
           </Box>
-          
-        </Box>
+        )}
       </Box>
 
       <Modal
