@@ -296,11 +296,11 @@ export default function Game() {
       // Edge cases
       if (totalCluesUsed >= 14 && numCorrect >= 7) {
         setIsGameOver(true);
-        setTimeout(() => endGame(true), 2000);
+        setTimeout(() => endGame(true), 2500);
       } else if (totalCluesUsed >= 14 && numCorrect < 7) {
         // Checks if last guess is correct but user still loses
         correct() // Play correct sound
-        setTimeout(() => endGame(false, true), 2000);
+        setTimeout(() => endGame(false, true), 2500);
       }
       
       if (currentWordIndex < clues.length - 1) {
@@ -313,7 +313,7 @@ export default function Game() {
       } else {
         // User wins
         setIsGameOver(true);
-        setTimeout(() => endGame(true), 2000);
+        setTimeout(() => endGame(true), 2500);
       }
     } else {
       if (currentClueIndex < clues[currentWordIndex].clues.length - 1) {
@@ -321,10 +321,10 @@ export default function Game() {
 
         // Edge cases
         if (totalCluesUsed >= 14 && numCorrect >= 7) {
-          setTimeout(endGame, 2000);
+          setTimeout(endGame, 2500);
         }
         if (count <= 1) {
-          setTimeout(endGame, 2000);
+          setTimeout(endGame, 2500);
         }
         
         setIsError(true);
@@ -343,7 +343,7 @@ export default function Game() {
         
       } else {
         // User loses
-        setTimeout(endGame, 2000);
+        setTimeout(endGame, 2500);
       }
     }
     setCurrentGuess('');
@@ -503,6 +503,12 @@ export default function Game() {
         <h1 className={styles.title}>{count} or Less</h1>
       </div>
 
+      {(isGameOver || totalCluesUsed > 14) && (
+        <div className={styles.endMessage}>
+          {getEndMessage()}
+        </div>
+      )}
+
       {/* Sidebar */}
       <div className={`${styles.sidebar} ${isSidebarOpen ? styles.open : ''}`}>
         <div className={styles.sidebarHeader}>
@@ -638,11 +644,6 @@ export default function Game() {
           ))}
 
           <div className={styles.gameArea}>
-          {isGameOver && (
-            <div className={styles.endMessage}>
-              {getEndMessage()}
-            </div>
-          )}
             <div>
               Clue:
             </div>

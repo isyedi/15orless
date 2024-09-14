@@ -233,16 +233,41 @@
 
 
 .endMessage{
-  position: relative; 
-  margin-bottom: 1rem;
-  background-color: white;
+  position: absolute;
+  top: 10%;
+  color: white;
+  background-color: black;
   border: 2px solid black;
   box-shadow: 2px 2px 2px 1px black;
   padding: 5px 10px;
-  font-size: 1.5rem;
+  font-size: .8rem;
   border-radius: 1px;
   z-index: 1;
   text-align: center;
+  animation: fadeInOut 2.5s forwards;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden; /* Ensure it's not interactable after disappearing */
+  }
+}
+
+@media (min-width: 700px) {
+  .endMessage {
+    top: 15%;
+    font-size: 1.2rem;
+  }
 }
 
 
