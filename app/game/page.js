@@ -447,9 +447,12 @@ export default function Game() {
   }
 
   // update data for user after every game played
-  if (isGameOver && isSignedIn) {
-    updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
-  }
+  useEffect(() => {
+    if (isGameOver && isSignedIn) {
+      updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
+    }
+  }, [isGameOver, isSignedIn]);
+  
 
   // for end game modal
   const handleOpen = () => {
