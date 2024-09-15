@@ -14,7 +14,7 @@ export const metadata = {
 const alfaSlabOne = Alfa_Slab_One({
   weight: '400',
   subsets: ['latin'],
-  display: 'swap',
+  display: 'auto',
 });
 
 export default function RootLayout({ children }) {
