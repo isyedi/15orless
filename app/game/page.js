@@ -474,6 +474,7 @@ export default function Game() {
 
   //shares your stats for the day
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const url = 'https://www.15orless.com'
 
   const generateShareText = () => {
     const date = new Date().toLocaleDateString();
@@ -481,7 +482,7 @@ export default function Game() {
       index < numCorrect ? '🟢' : '⚫'
     );
    
-    return `${date}, ${count} Or Less: ${circles.join(' ')}`;
+    return `${date}\n\n${count} Or Less: ${circles.join(' ')}\n\nCan you beat me?\n${url}`;
   };
   
   const handleShare = () => {
