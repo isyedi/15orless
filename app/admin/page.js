@@ -50,6 +50,20 @@ export default function Admin() {
     }
   };
 
+  const handleDailyFeature = async () => {
+    setLoading(true);
+    setMessage('');
+    try {
+      const response = await axios.post('/api/populate-words-2');
+      setMessage(response.data.message);
+      //fetchWordCount();  // Update word count after generating words
+    } catch (error) {
+      setMessage("Error generating words: " + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div style={{ padding: '20px', position: 'relative' }}>
       <div style={{ position: 'absolute', top: '20px', right: '20px', fontSize: '18px', fontWeight: 'bold' }}>
@@ -66,7 +80,20 @@ export default function Admin() {
         {clearing ? 'Clearing...' : 'Clear All Words'}
       </button>
 
+      <button onClick = {handleDailyFeature} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px' }}>
+        {loading ? 'Generating...' : 'Generate Words For A New Day (revision)'}
+      </button>
+
+      {/* <button onClick={handleClearWords} disabled={loading || clearing} style={{ padding: '10px 20px', fontSize: '16px', marginLeft: '10px' }}>
+        {clearing ? 'Clearing...' : 'Clear All Words'}
+      </button> */}
+
+
       {message && <p>{message}</p>}
+
+
+
+
     </div>
   );
 }
