@@ -26,7 +26,7 @@ export default function Admin() {
     setLoading(true);
     setMessage('');
     try {
-      const response = await axios.post('/api/populate-words');
+      const response = await axios.post('/api/-words');
       setMessage(response.data.message);
       fetchWordCount();  // Update word count after generating words
     } catch (error) {
@@ -54,7 +54,7 @@ export default function Admin() {
     setLoading(true);
     setMessage('');
     try {
-      const response = await axios.post('/api/populate-words-2');
+      const response = await axios.post('/api/-words-2');
       setMessage(response.data.message);
       //fetchWordCount();  // Update word count after generating words
     } catch (error) {

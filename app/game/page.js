@@ -47,6 +47,7 @@ export default function Game() {
   const [gamesWon, setGamesWon] = useState(0);
   const [currentStreak, setCurrentStreak] = useState(0);
   const [lastDatePlayed, setLastDatePlayed] = useState('');
+  const [lastGameSession, setLastGameSession] = useState(null);
   const date = new Date().toLocaleDateString('en-CA');
 
   const [count, setCount] = useState(15);
@@ -135,10 +136,30 @@ export default function Game() {
       }
     } else {
       // For anonymous users
-      const lastDatePlayed = localStorage.getItem('lastDatePlayed');
-      if (lastDatePlayed === date) {
+      const lastGameSession = localStorage.getItem('lastGameSession');
+      if (lastGameSession) {
+        const parsed = JSON.parse(lastGameSession);
+        //setLastSession(parsed);
+        setNumCorrect(parsed.score)
+        setTotalCluesUsed(parsed.guessesLeft)
+        setLastDatePlayed(parsed.datePlayed)
+
+      const today = new Date().toLocaleDateString('en-CA');
+
+      console.log(today)
+      console.log(parsed.datePlayed)
+      console.log(parsed.datePlayed == today)
+      
+      
+      if (parsed.datePlayed == today) {
         setIsGameOver(true);
+        setOpen(true);
         return;
+      }
+      else{
+        localStorage.removeItem('lastGameSession');
+      }
+  
       }
     }
 
@@ -296,11 +317,11 @@ export default function Game() {
       // Edge cases
       if (totalCluesUsed >= 14 && numCorrect >= 7) {
         setIsGameOver(true);
-        setTimeout(() => endGame(true), 2500);
+        setTimeout(() => endGame(true), 1000);
       } else if (totalCluesUsed >= 14 && numCorrect < 7) {
         // Checks if last guess is correct but user still loses
         correct() // Play correct sound
-        setTimeout(() => endGame(false, true), 2500);
+        setTimeout(() => endGame(false, true), 10000);
       }
       
       if (currentWordIndex < clues.length - 1) {
@@ -378,81 +399,92 @@ export default function Game() {
   };
 
   const endGame = async (isWon = false, first = false) => {
-    // End game message and sound
+    const title = isWon ? 'You got 15 or less!' : 'Next time!';
+    const guesses = isWon
+      ? (14 - totalCluesUsed === 0
+          ? 'Phew! All guesses used'
+          : `${14 - totalCluesUsed} guesses remaining`)
+      : 'Ran out of guesses';
+  
+    const score = isWon? 8 : numCorrect;
+    setEndGameTitle(title);
+    setEndGameGuesses(guesses);
+    setIsGameOver(true);
+  
     if (isWon) {
-      setEndGameTitle('You got 15 or less!')
-      if ((14 - totalCluesUsed) === 0) {
-        setEndGameGuesses('Phew! All guesses used')
-      } else {
-        setEndGameGuesses(`${14 - totalCluesUsed} guesses remaining`)
-      }
-      handleOpen()
-      win() // Play win sound
+      handleOpen();
+      win();
     } else {
-      setEndGameTitle('Next time!')
-      setEndGameGuesses(`Ran out of guesses`)
-
-      // Sequentially reveal remaining words one by one using recursive setTimeout
       const revealWords = (index) => {
         if (index >= clues.length) {
           handleOpen();
           lose();
-          return; // Stop when all words are revealed
+          return;
         }
-
+  
         setGuessedWords((prevGuessedWords) =>
-            prevGuessedWords.map((word, i) =>
-                i === index && !word ? clues[i].word : word
-            )
+          prevGuessedWords.map((word, i) =>
+            i === index && !word ? clues[i].word : word
+          )
         );
-        reveal() // audio
-
-        // Call revealWords again after a delay to reveal the next word
-        setTimeout(() => {
-            revealWords(index + 1);
-        }, 1000); // Adjust delay (1000ms = 1 second)
+        reveal();
+        setTimeout(() => revealWords(index + 1), 500);
       };
-
+  
       if (first) {
-        revealWords(currentWordIndex + 1)
+        revealWords(currentWordIndex + 1);
       } else {
-        revealWords(currentWordIndex)
+        revealWords(currentWordIndex);
       }
-
     }
+  
+    const sessionData = {
+      score: score,
+      datePlayed: date,
+      won: isWon,
+      guessesLeft: totalCluesUsed,
+      endTime: time,
+      title: title,
+      guesses: guesses,
+    };
+  
+    localStorage.setItem('lastGameSession', JSON.stringify(sessionData));
+    console.log("Saved session:", sessionData);
+  };
 
-    setIsGameOver(true);
-    localStorage.setItem('lastDatePlayed', date);
-
-    // Increment user's total games played
-    setGamesPlayed((prevGamesPlayed) => prevGamesPlayed + 1)
-    
-    // Increment user's total wins
-    if (isWon) {
-      setGamesWon((prevGamesWon) => prevGamesWon + 1)
+  //save anon session data on mounting of endgame
+  useEffect(() => {
+    const anonSession = localStorage.getItem('lastGameSession');
+    if (anonSession) {
+      const parsed = JSON.parse(anonSession);
+  
+      if (parsed.datePlayed == date) {
+        setNumCorrect(parsed.score);
+        setTotalCluesUsed(parsed.guessesLeft);
+        setIsGameOver(true);
+        setLastDatePlayed(parsed.datePlayed);
+        setTime(parsed.endTime)
+        setEndGameGuesses(parsed.guesses)
+        setEndGameTitle(parsed.title)
+        setOpen(true);
+      }
+      else{
+        localStorage.removeItem('lastGameSession');
+      }
     }
+  }, []);
+  
 
-    //update last date played
-    console.log(lastDatePlayed)
 
-
-    //validate for streak here
-    // if {
-    // }
-    // else {
-
-    // }
-    
-    return;
-  }
-
-  // update data for user after every game played
+  // update data for signed-in
   useEffect(() => {
     if (isGameOver && isSignedIn) {
       updateUserData(userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed)
+    } else if (isGameOver) {
+
     }
-  }, [isGameOver, isSignedIn]);
-  
+  }, [userId, gamesPlayed, gamesWon, currentStreak, lastDatePlayed, isGameOver, isSignedIn]);
+
 
   // for end game modal
   const handleOpen = () => {
@@ -477,7 +509,7 @@ export default function Game() {
 
   //shares your stats for the day
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const url = 'https://www.15orless.com'
+  const url = 'https://www.guess15orless.com'
 
   const generateShareText = () => {
     const date = new Date().toLocaleDateString();
@@ -856,49 +888,117 @@ export default function Game() {
               borderRadius: 1,
             }}
           >
-            <Typography variant="h2" component="h2" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center' }}>
+            <Typography
+              variant="h2"
+              component="h2"
+              sx={{
+                fontFamily: alfaSlabOne.style.fontFamily,
+                textAlign: 'center',
+                fontSize: {
+                  xs: '32px',    // mobile
+                  sm: '48px',    // tablets
+                  md: '64px',    // desktops
+                  lg: '75px'     // large screens
+                },
+                lineHeight: 1.2,
+                mt: 2,
+                mb: 2,
+              }}
+            >
               {endGameTitle}
             </Typography>
 
-            <Stack direction="row" spacing={25} sx = {{ pt: 10, justifyContent: 'center'}}>
-                <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                  {`${numCorrect} out of 8`} <br />  {`words correct!`}
-                  </Typography>
-                
 
-                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                    {endGameGuesses}
-                  </Typography>
+            {/* Stats section */}
+            
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }} // vertical on xs, horizontal on sm+
+              spacing={{ xs: 4, sm: 8, md: 12, lg: 25 }}
+              sx={{
+                pt: 8,
+                px: { xs: 2, sm: 6 },
+                justifyContent: 'center',
+                alignItems: 'center',
+                textAlign: 'center',
+              }}
+            >
+              <Typography
+                variant="h5"
+                component="h4"
+                sx={{
+                  fontFamily: alfaSlabOne.style.fontFamily,
+                  fontSize: { xs: '18px', sm: '20px', md: '24px' },
+                }}
+              >
+                {`${numCorrect} out of 8`} <br /> {`words correct!`}
+              </Typography>
 
-                  
-                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                    <span className={styles.timeEndGame}>Time: </span>{Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}
-                  </Typography>
+              <Typography
+                variant="h5"
+                component="h4"
+                sx={{
+                  fontFamily: alfaSlabOne.style.fontFamily,
+                  fontSize: { xs: '18px', sm: '20px', md: '24px' },
+                }}
+              >
+                {endGameGuesses}
+              </Typography>
+
+              <Typography
+                variant="h5"
+                component="h4"
+                sx={{
+                  fontFamily: alfaSlabOne.style.fontFamily,
+                  fontSize: { xs: '18px', sm: '20px', md: '24px' },
+                }}
+              >
+                <span className={styles.timeEndGame}>Time: </span>
+                {Math.floor(time / 60)}:{time % 60 < 10 ? `0${time % 60}` : time % 60}
+              </Typography>
             </Stack>
 
-            <Stack direction="row" spacing={15} sx = {{ pt: 10, textAlign: 'center', justifyContent: 'center'}}>
-                <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                  Games Completed: {gamesPlayed}
+
+
+                {isSignedIn && (
+                <Stack direction="row" spacing={15} sx = {{ pt: 10, textAlign: 'center', justifyContent: 'center'}}>
+                    <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                      Games Completed: {gamesPlayed}
+                      </Typography>
+                    
+
+                      <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                        Win %: {Math.round((gamesWon / gamesPlayed) * 100)}
+                      </Typography>
+
+                      
+                      <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                        Current Streak
+                      </Typography>
+
+                      <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
+                        Max Streak
+                      </Typography>
+                  </Stack>
+                  )}
+
+                {!isSignedIn && (
+                  <Typography
+                    variant="h5"
+                    component="h4"
+                    sx={{
+                      fontFamily: alfaSlabOne.style.fontFamily,
+                      textAlign: 'center',
+                      fontSize: { xs: '16px', sm: '22px', md: '26px' },
+                      px: { xs: 2, sm: 4 },
+                      pt: 6,
+                    }}
+                  >
+                    Sign in to track your stats and streaks!
                   </Typography>
-                
-
-                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                    Win %: {Math.round((gamesWon / gamesPlayed) * 100)}
-                  </Typography>
-
-                  
-                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                    Current Streak
-                  </Typography>
-
-                  <Typography variant = "h5" component = "h4" sx={{ fontFamily: alfaSlabOne.style.fontFamily, textAlign: 'center'}}>
-                    Max Streak
-                  </Typography>
-            </Stack>
+                )}
 
 
-
-            <Stack direction = 'row' spacing = {2} sx = {{ pt: 8, pl: 25, pr: 25, textAlign: 'center', justifyContent: 'center'}}>
+            {/* <Stack direction = 'row' spacing = {2} sx = {{ pt: 8, pl: 25, pr: 25, textAlign: 'center', justifyContent: 'center'}}>
               <Button variant="contained" onClick = {handleClose}
                 disableRipple
               sx={{
@@ -947,7 +1047,78 @@ export default function Game() {
               }}>
                 Share <ShareIcon />
               </Button>
+            </Stack> */}
+
+            {/* Endgame Buttons */}
+
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }} // column on xs, row on sm+
+              spacing={2}
+              sx={{
+                pt: 6,
+                px: { xs: 2, sm: 6, md: 10 }, // responsive horizontal padding
+                textAlign: 'center',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Button
+                variant="contained"
+                onClick={handleClose}
+                disableRipple
+                sx={{
+                  py: 1.5,
+                  width: { xs: '100%', sm: 'auto' },
+                  fontSize: { xs: '16px', sm: '20px' },
+                  color: 'black',
+                  background: 'white',
+                  border: '3px solid black',
+                  borderRadius: 50,
+                  cursor: 'pointer',
+                  textTransform: 'none',
+                  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                  '&:hover': {
+                    boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                  },
+                  '&:active': {
+                    boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                  },
+                  fontFamily: alfaSlabOne.style.fontFamily,
+                }}
+              >
+                Back to Puzzle
+              </Button>
+
+              <Button
+                variant="contained"
+                onClick={handleShare}
+                disableRipple
+                sx={{
+                  py: 1.5,
+                  gap: 1,
+                  width: { xs: '100%', sm: 'auto' },
+                  fontSize: { xs: '16px', sm: '20px' },
+                  color: 'black',
+                  background: '#BDD2B6',
+                  border: '3px solid black',
+                  borderRadius: 50,
+                  cursor: 'pointer',
+                  textTransform: 'none',
+                  boxShadow: '4px 4px 0px 0px rgba(0, 0, 0, 1)',
+                  '&:hover': {
+                    boxShadow: '7px 7px 0px 0px rgba(0, 0, 0, 1)',
+                  },
+                  '&:active': {
+                    boxShadow: '2px 2px 0px 0px rgba(0, 0, 0, 1)',
+                  },
+                  fontFamily: alfaSlabOne.style.fontFamily,
+                }}
+              >
+                Share <ShareIcon />
+              </Button>
             </Stack>
+
+
             <Snackbar
         open={openSnackbar}
         autoHideDuration={2000}
