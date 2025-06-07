@@ -36,25 +36,25 @@ export default function Admin() {
     }
   };
 
-  const handleClearWords = async () => {
-    setClearing(true);
-    setMessage('');
-    try {
-      const response = await axios.post('/api/clear-words');
-      setMessage(response.data.message);
-      fetchWordCount();  // Update word count after clearing words
-    } catch (error) {
-      setMessage("Error clearing words: " + (error.response?.data?.message || error.message));
-    } finally {
-      setClearing(false);
-    }
-  };
+  // const handleClearWords = async () => {
+  //   setClearing(true);
+  //   setMessage('');
+  //   try {
+  //     const response = await axios.post('/api/clear-words');
+  //     setMessage(response.data.message);
+  //     fetchWordCount();  // Update word count after clearing words
+  //   } catch (error) {
+  //     setMessage("Error clearing words: " + (error.response?.data?.message || error.message));
+  //   } finally {
+  //     setClearing(false);
+  //   }
+  // };
 
   const handleDailyFeature = async () => {
     setLoading(true);
     setMessage('');
     try {
-      const response = await axios.post('/api/-words-2');
+      const response = await axios.post('/api/populate-words-2');
       setMessage(response.data.message);
       //fetchWordCount();  // Update word count after generating words
     } catch (error) {
@@ -76,9 +76,9 @@ export default function Admin() {
         {loading ? 'Generating...' : 'Generate New Words'}
       </button>
 
-      <button onClick={handleClearWords} disabled={loading || clearing} style={{ padding: '10px 20px', fontSize: '16px', marginLeft: '10px' }}>
+      {/* <button onClick={handleClearWords} disabled={loading || clearing} style={{ padding: '10px 20px', fontSize: '16px', marginLeft: '10px' }}>
         {clearing ? 'Clearing...' : 'Clear All Words'}
-      </button>
+      </button> */}
 
       <button onClick = {handleDailyFeature} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px' }}>
         {loading ? 'Generating...' : 'Generate Words For A New Day (revision)'}
