@@ -1,0 +1,14 @@
+# .github/workflows/daily-words.yml
+name: Generate Daily Words
+on:
+  schedule:
+    - cron: '0 8 * * *'  # 8 AM UTC = Midnight PST
+  workflow_dispatch:  # Allows manual trigger
+
+jobs:
+  generate-words:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Daily Words
+        run: |
+          curl -X GET "https://15orless-lid9auzku-isyedis-projects.vercel.app/api/cron-generate-daily-words"
