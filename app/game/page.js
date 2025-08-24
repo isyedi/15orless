@@ -95,7 +95,7 @@ export default function Game() {
       createUserData(userId);
       getUserData(userId);
     }
-  }, []);
+  }, [isSignedIn, userId]);
 
   // useEffect(() => {
   //   const circle = document.getElementById('circle');
@@ -180,7 +180,7 @@ export default function Game() {
     setCluesUsed(Array(15).fill(false)); // Reset clue grid container
     setCount(15); // Reset clue countdown 
     setNumCorrect(0);
-    setLastDatePlayed(date);
+    setLastDatePlayed(new Date().toLocaleDateString('en-CA'));
   };
 
   const getUserData = async (u) => {

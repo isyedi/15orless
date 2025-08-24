@@ -79,7 +79,7 @@ export default function Admin() {
         </button>
 
         <button onClick={handleGenerateDailyWords} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px', marginRight: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none' }}>
-          {loading ? 'Generating...' : 'Generate Today\'s Daily Words'}
+          {loading ? 'Generating...' : 'Generate Today&apos;s Daily Words'}
         </button>
 
         <button onClick={handleDailyFeature} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px' }}>
@@ -107,7 +107,7 @@ export default function Admin() {
           borderRadius: '4px',
           marginTop: '20px'
         }}>
-          <h3>Today's Generated Words:</h3>
+          <h3>Today&apos;s Generated Words:</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
             {dailyWords.map((wordData, index) => (
               <div key={index} style={{ 
