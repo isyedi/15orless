@@ -1,10 +1,10 @@
 import { OpenAI } from 'openai';
-import { collection, addDoc, getDocs, doc, setDoc } from "firebase/firestore";
+import { collection, getDocs, doc, setDoc } from "firebase/firestore";
 import { db } from "../../../firebase";
 
 // Initialize the OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Ensure you have this key in your .env.local
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(req) {
@@ -15,7 +15,7 @@ export async function POST(req) {
     const pstDate = new Date(today.getTime() + (pstOffset * 60 * 1000));
     const todaysDate = pstDate.toLocaleDateString('en-CA'); // Format as YYYY-MM-DD
     
-    console.log(`Generating new words for date: ${todaysDate}`);
+    console.log(`Manual trigger: Generating new words for date: ${todaysDate}`);
 
     // Check if words for today already exist
     const dailyWordsetDoc = doc(db, "dailyWordsets", todaysDate);
@@ -56,17 +56,18 @@ export async function POST(req) {
       generatedAt: new Date().toISOString()
     });
 
-    console.log(`Daily wordset for ${todaysDate} generated and saved successfully!`);
+    console.log(`Manual trigger: Daily wordset for ${todaysDate} generated and saved successfully!`);
     return new Response(JSON.stringify({ 
       success: true, 
       message: `Daily wordset for ${todaysDate} generated successfully!`,
       date: todaysDate,
-      wordCount: generatedWords.length
+      wordCount: generatedWords.length,
+      words: generatedWords
     }), { status: 200 });
 
   } catch (error) {
-    console.error("Error in word generation:", error);
-    return new Response(JSON.stringify({ success: false, message: "Error adding words: " + error.message }), { status: 500 });
+    console.error("Error in manual word generation:", error);
+    return new Response(JSON.stringify({ success: false, message: "Error generating daily words: " + error.message }), { status: 500 });
   }
 }
 
@@ -119,3 +120,4 @@ function parseBatchResponse(content) {
     throw new Error('Failed to parse OpenAI response');
   }
 }
+

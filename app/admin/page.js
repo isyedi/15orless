@@ -7,10 +7,11 @@ export default function Admin() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [clearing, setClearing] = useState(false);
-  const [wordCount, setWordCount] = useState(0);  // New state to track word count
+  const [wordCount, setWordCount] = useState(0);
+  const [dailyWords, setDailyWords] = useState(null);
 
   useEffect(() => {
-    fetchWordCount();  // Fetch word count on component mount
+    fetchWordCount();
   }, []);
 
   const fetchWordCount = async () => {
@@ -26,9 +27,9 @@ export default function Admin() {
     setLoading(true);
     setMessage('');
     try {
-      const response = await axios.post('/api/-words');
+      const response = await axios.post('/api/populate-words');
       setMessage(response.data.message);
-      fetchWordCount();  // Update word count after generating words
+      fetchWordCount();
     } catch (error) {
       setMessage("Error generating words: " + (error.response?.data?.message || error.message));
     } finally {
@@ -36,19 +37,20 @@ export default function Admin() {
     }
   };
 
-  // const handleClearWords = async () => {
-  //   setClearing(true);
-  //   setMessage('');
-  //   try {
-  //     const response = await axios.post('/api/clear-words');
-  //     setMessage(response.data.message);
-  //     fetchWordCount();  // Update word count after clearing words
-  //   } catch (error) {
-  //     setMessage("Error clearing words: " + (error.response?.data?.message || error.message));
-  //   } finally {
-  //     setClearing(false);
-  //   }
-  // };
+  const handleGenerateDailyWords = async () => {
+    setLoading(true);
+    setMessage('');
+    setDailyWords(null);
+    try {
+      const response = await axios.post('/api/generate-todays-words');
+      setMessage(response.data.message);
+      setDailyWords(response.data.words);
+    } catch (error) {
+      setMessage("Error generating daily words: " + (error.response?.data?.message || error.message));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleDailyFeature = async () => {
     setLoading(true);
@@ -56,7 +58,6 @@ export default function Admin() {
     try {
       const response = await axios.post('/api/populate-words-2');
       setMessage(response.data.message);
-      //fetchWordCount();  // Update word count after generating words
     } catch (error) {
       setMessage("Error generating words: " + (error.response?.data?.message || error.message));
     } finally {
@@ -70,30 +71,59 @@ export default function Admin() {
         Word Count: {wordCount}
       </div>
       <h1>Admin Page</h1>
-      <p>Click the button below to generate new words and clues.</p>
+      <p>Click the buttons below to generate new words and clues.</p>
       
-      <button onClick={handleGenerateWords} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px' }}>
-        {loading ? 'Generating...' : 'Generate New Words'}
-      </button>
+      <div style={{ marginBottom: '20px' }}>
+        <button onClick={handleGenerateWords} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px', marginRight: '10px' }}>
+          {loading ? 'Generating...' : 'Generate New Words (Legacy)'}
+        </button>
 
-      {/* <button onClick={handleClearWords} disabled={loading || clearing} style={{ padding: '10px 20px', fontSize: '16px', marginLeft: '10px' }}>
-        {clearing ? 'Clearing...' : 'Clear All Words'}
-      </button> */}
+        <button onClick={handleGenerateDailyWords} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px', marginRight: '10px', backgroundColor: '#4CAF50', color: 'white', border: 'none' }}>
+          {loading ? 'Generating...' : 'Generate Today\'s Daily Words'}
+        </button>
 
-      <button onClick = {handleDailyFeature} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px' }}>
-        {loading ? 'Generating...' : 'Generate Words For A New Day (revision)'}
-      </button>
+        <button onClick={handleDailyFeature} disabled={loading} style={{ padding: '10px 20px', fontSize: '16px' }}>
+          {loading ? 'Generating...' : 'Generate Words For A New Day (revision)'}
+        </button>
+      </div>
 
-      {/* <button onClick={handleClearWords} disabled={loading || clearing} style={{ padding: '10px 20px', fontSize: '16px', marginLeft: '10px' }}>
-        {clearing ? 'Clearing...' : 'Clear All Words'}
-      </button> */}
+      {message && (
+        <div style={{ 
+          padding: '15px', 
+          backgroundColor: message.includes('Error') ? '#ffebee' : '#e8f5e8', 
+          border: `1px solid ${message.includes('Error') ? '#f44336' : '#4caf50'}`, 
+          borderRadius: '4px',
+          marginBottom: '20px'
+        }}>
+          <strong>{message.includes('Error') ? 'Error:' : 'Success:'}</strong> {message}
+        </div>
+      )}
 
-
-      {message && <p>{message}</p>}
-
-
-
-
+      {dailyWords && (
+        <div style={{ 
+          padding: '15px', 
+          backgroundColor: '#e3f2fd', 
+          border: '1px solid #2196f3', 
+          borderRadius: '4px',
+          marginTop: '20px'
+        }}>
+          <h3>Today's Generated Words:</h3>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+            {dailyWords.map((wordData, index) => (
+              <div key={index} style={{ 
+                padding: '10px', 
+                backgroundColor: 'white', 
+                border: '1px solid #ddd', 
+                borderRadius: '4px' 
+              }}>
+                <strong>Word {index + 1}:</strong> {wordData.word}
+                <br />
+                <strong>Clues:</strong> {wordData.clues.join(', ')}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
